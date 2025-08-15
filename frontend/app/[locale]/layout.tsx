@@ -27,9 +27,14 @@ export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
   return (
     <html lang={params.locale}>
       <body className={inter.className}>
+        {/* Skip to content link for keyboard users */}
+        <a href="#main-content" className="skip-to-content">
+          Skip to main content
+        </a>
+        
         <div className="min-h-screen flex flex-col">
           <Navbar />
-          <main className="flex-1">
+          <main id="main-content" className="flex-1" role="main" tabIndex={-1}>
             {children}
           </main>
           <Footer />

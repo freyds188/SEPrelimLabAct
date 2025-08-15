@@ -42,10 +42,17 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
+    
+    // Ensure button has accessible name
+    const hasAccessibleName = props['aria-label'] || props['aria-labelledby'] || props.children
+    
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
+        type={props.type || "button"}
+        role={props.role || "button"}
+        {...(hasAccessibleName ? {} : { 'aria-label': 'Button' })}
         {...props}
       />
     )

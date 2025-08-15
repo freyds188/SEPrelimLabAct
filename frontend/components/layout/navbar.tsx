@@ -23,16 +23,20 @@ export function Navbar() {
   const t = getTranslations(locale)
 
   return (
-    <nav className="bg-white border-b border-neutral-200 shadow-sm">
+    <nav className="bg-white border-b border-neutral-200 shadow-sm" role="navigation" aria-label="Main navigation">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link href={getLocalizedPathname("/", locale)} className="flex-shrink-0 flex items-center">
+            <Link 
+              href={getLocalizedPathname("/", locale)} 
+              className="flex-shrink-0 flex items-center"
+              aria-label="Weavers - Home"
+            >
               <span className="text-xl font-bold text-brand-600">Weavers</span>
             </Link>
           </div>
           
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-8" role="menubar">
             {navigation.map((item) => (
               <Link
                 key={item.name}
@@ -43,6 +47,8 @@ export function Navbar() {
                     ? "text-brand-600"
                     : "text-neutral-600"
                 )}
+                role="menuitem"
+                aria-current={pathname === getLocalizedPathname(item.href, locale) ? "page" : undefined}
               >
                 {t.nav[item.name as keyof typeof t.nav]}
               </Link>
@@ -52,13 +58,20 @@ export function Navbar() {
           <div className="flex items-center space-x-4">
             <LocaleSwitcher />
             <div className="md:hidden">
-              <Button variant="ghost" size="sm">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                aria-label="Open navigation menu"
+                aria-expanded="false"
+                aria-controls="mobile-menu"
+              >
                 <span className="sr-only">Open menu</span>
                 <svg
                   className="h-6 w-6"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"

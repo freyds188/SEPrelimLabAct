@@ -2,6 +2,60 @@
 @tailwind components;
 @tailwind utilities;
 
+/* WCAG 2.2 AA Compliance - Focus Management */
+@layer base {
+  /* Focus rings for keyboard navigation */
+  *:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Skip to content link */
+  .skip-to-content {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: #3b82f6;
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 4px;
+    z-index: 1000;
+    transition: top 0.3s;
+  }
+
+  .skip-to-content:focus {
+    top: 6px;
+  }
+
+  /* Ensure sufficient color contrast */
+  .text-neutral-600 {
+    color: #525252;
+  }
+
+  /* High contrast focus indicators */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 3px solid #1d4ed8;
+    outline-offset: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 :root {
   /* shadcn/ui colors */
   --background: 0 0% 100%;
