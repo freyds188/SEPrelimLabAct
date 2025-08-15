@@ -1,0 +1,70 @@
+{
+  "nav": {
+    "home": "Home",
+    "shop": "Shop",
+    "stories": "Stories",
+    "donate": "Donate",
+    "glossary": "Glossary",
+    "weavers": "Weavers",
+    "about": "About"
+  },
+  "seo": {
+    "home": {
+      "title": "Weavers - Handcrafted Textiles & Cultural Heritage",
+      "description": "Discover beautiful handwoven textiles from Filipino artisans. Support cultural preservation and fair trade practices."
+    }
+  },
+  "home": {
+    "hero": {
+      "badge": "Handcrafted with Love",
+      "title": "Discover the Art of",
+      "titleHighlight": "Filipino Weaving",
+      "description": "Explore our collection of handwoven textiles, each piece telling a story of cultural heritage and skilled craftsmanship from Filipino artisans.",
+      "shopButton": "Shop Now",
+      "storiesButton": "Read Stories"
+    },
+    "features": {
+      "shop": {
+        "title": "Shop Handwoven Textiles",
+        "description": "Browse our collection of authentic handwoven textiles, each piece carefully crafted by skilled Filipino artisans.",
+        "button": "View Collection"
+      },
+      "weavers": {
+        "title": "Meet Our Weavers",
+        "description": "Learn about the talented artisans behind our textiles and their cultural heritage.",
+        "button": "Meet Weavers"
+      },
+      "donate": {
+        "title": "Support the Community",
+        "description": "Help preserve traditional weaving techniques and support artisan communities.",
+        "button": "Donate Now"
+      }
+    },
+    "mission": {
+      "title": "Our Mission",
+      "description": "We are dedicated to preserving Filipino weaving traditions while providing fair compensation to artisans and promoting cultural heritage.",
+      "culturalPreservation": {
+        "title": "Cultural Preservation",
+        "description": "We work with communities to preserve traditional weaving techniques and patterns that have been passed down through generations."
+      },
+      "fairTrade": {
+        "title": "Fair Trade Practices",
+        "description": "Every purchase directly supports the artisans and their families, ensuring fair wages and sustainable livelihoods."
+      }
+    }
+  },
+  "footer": {
+    "description": "Supporting Filipino artisans and preserving cultural heritage through handwoven textiles.",
+    "shop": {
+      "title": "Shop",
+      "allProducts": "All Products",
+      "meetWeavers": "Meet Our Weavers"
+    },
+    "learn": {
+      "title": "Learn",
+      "stories": "Artisan Stories",
+      "glossary": "Weaving Glossary"
+    },
+    "copyright": "© 2024 Weavers. All rights reserved."
+  }
+}

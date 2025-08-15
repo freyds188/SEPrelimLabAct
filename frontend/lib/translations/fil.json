@@ -1,0 +1,70 @@
+{
+  "nav": {
+    "home": "Tahanan",
+    "shop": "Tindahan",
+    "stories": "Mga Kwento",
+    "donate": "Magbigay",
+    "glossary": "Glosaryo",
+    "weavers": "Mga Manghahabi",
+    "about": "Tungkol"
+  },
+  "seo": {
+    "home": {
+      "title": "Weavers - Kamay na Ginawang Tela at Pamanang Kultural",
+      "description": "Tuklasin ang magagandang kamay na ginawang tela mula sa mga Filipino artisan. Suportahan ang pangangalaga ng kultura at patas na kalakalan."
+    }
+  },
+  "home": {
+    "hero": {
+      "badge": "Ginawang may Pagmamahal",
+      "title": "Tuklasin ang Sining ng",
+      "titleHighlight": "Paghahabi sa Pilipinas",
+      "description": "Galugarin ang aming koleksyon ng kamay na ginawang tela, bawat piraso ay nagkukuwento ng pamanang kultural at dalubhasang paggawa mula sa mga Filipino artisan.",
+      "shopButton": "Mag-shop Ngayon",
+      "storiesButton": "Basahin ang Mga Kwento"
+    },
+    "features": {
+      "shop": {
+        "title": "Mag-shop ng Kamay na Ginawang Tela",
+        "description": "Tingnan ang aming koleksyon ng tunay na kamay na ginawang tela, bawat piraso ay maingat na ginawa ng mga dalubhasang Filipino artisan.",
+        "button": "Tingnan ang Koleksyon"
+      },
+      "weavers": {
+        "title": "Kilalanin ang Aming Mga Manghahabi",
+        "description": "Alamin ang tungkol sa mga talentadong artisan sa likod ng aming mga tela at kanilang pamanang kultural.",
+        "button": "Kilalanin ang Mga Manghahabi"
+      },
+      "donate": {
+        "title": "Suportahan ang Komunidad",
+        "description": "Tulungan na mapanatili ang tradisyonal na pamamaraan ng paghahabi at suportahan ang mga komunidad ng artisan.",
+        "button": "Magbigay Ngayon"
+      }
+    },
+    "mission": {
+      "title": "Aming Misyon",
+      "description": "Kami ay nakatuon sa pangangalaga ng mga tradisyon sa paghahabi sa Pilipinas habang nagbibigay ng patas na kabayaran sa mga artisan at nagtataguyod ng pamanang kultural.",
+      "culturalPreservation": {
+        "title": "Pangangalaga ng Kultura",
+        "description": "Nakikipagtulungan kami sa mga komunidad upang mapanatili ang tradisyonal na pamamaraan ng paghahabi at mga pattern na ipinasa sa mga henerasyon."
+      },
+      "fairTrade": {
+        "title": "Patas na Kalakalan",
+        "description": "Bawat pagbili ay direktang sumusuporta sa mga artisan at kanilang pamilya, tinitiyak ang patas na sahod at napapanatiling kabuhayan."
+      }
+    }
+  },
+  "footer": {
+    "description": "Sinusuportahan ang mga Filipino artisan at pangangalaga ng pamanang kultural sa pamamagitan ng kamay na ginawang tela.",
+    "shop": {
+      "title": "Tindahan",
+      "allProducts": "Lahat ng Produkto",
+      "meetWeavers": "Kilalanin ang Aming Mga Manghahabi"
+    },
+    "learn": {
+      "title": "Matuto",
+      "stories": "Mga Kwento ng Artisan",
+      "glossary": "Glosaryo ng Paghahabi"
+    },
+    "copyright": "© 2024 Weavers. Lahat ng karapatan ay nakalaan."
+  }
+}
