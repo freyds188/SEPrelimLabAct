@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\StoryController;
 use App\Http\Controllers\Api\CampaignController;
 use App\Http\Controllers\Api\GlossaryTermController;
+use App\Http\Controllers\Api\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,6 +19,11 @@ use App\Http\Controllers\Api\GlossaryTermController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+// Simple test endpoint - no dependencies
+Route::get('/ping', function () {
+    return ['message' => 'pong'];
+});
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -32,6 +38,14 @@ Route::get('/health', function () {
     ]);
 });
 
+// Simple test endpoint
+Route::get('/test', function () {
+    return response()->json([
+        'status' => 'ok',
+        'message' => 'API is working'
+    ]);
+});
+
 // Public API endpoints (v1)
 Route::prefix('v1')->group(function () {
     // Public routes (no authentication required)
@@ -41,6 +55,10 @@ Route::prefix('v1')->group(function () {
             'version' => '1.0.0'
         ]);
     });
+
+    // Auth routes (public)
+    Route::post('/auth/register', [AuthController::class, 'register']);
+    Route::post('/auth/login', [AuthController::class, 'login']);
 
     // Weaver routes
     Route::get('/weavers', [WeaverController::class, 'index']);
@@ -71,6 +89,10 @@ Route::prefix('v1')->group(function () {
 
     // Protected routes (authentication required)
     Route::middleware('auth:sanctum')->group(function () {
+        // Auth routes (authenticated)
+        Route::post('/auth/logout', [AuthController::class, 'logout']);
+        Route::get('/auth/me', [AuthController::class, 'me']);
+
         // Weaver management (authenticated users)
         Route::post('/weavers', [WeaverController::class, 'store']);
         Route::put('/weavers/{weaver}', [WeaverController::class, 'update']);

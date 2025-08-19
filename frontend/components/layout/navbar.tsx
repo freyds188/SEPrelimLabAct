@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { LocaleSwitcher } from "./locale-switcher"
+import { UserMenu } from "./user-menu"
 import { getLocaleFromPathname, getTranslations, getLocalizedPathname } from "@/lib/i18n"
 
 const navigation = [
@@ -57,6 +58,7 @@ export function Navbar() {
 
           <div className="flex items-center space-x-4">
             <LocaleSwitcher />
+            <UserMenu />
             <div className="md:hidden">
               <Button 
                 variant="ghost" 

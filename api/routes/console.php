@@ -22,3 +22,11 @@ Artisan::command('inspire', function () {
 
 
 
+
+
+
+
+
+
+
+

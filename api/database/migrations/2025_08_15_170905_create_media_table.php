@@ -28,7 +28,6 @@ return new class extends Migration
             $table->integer('order')->default(0);
             $table->timestamps();
             
-            $table->index(['mediable_type', 'mediable_id']);
             $table->index('collection');
             $table->index('mime_type');
         });
