@@ -14,7 +14,7 @@ return [
     */
 
     'defaults' => [
-        'guard' => 'web',
+        'guard' => 'api',
         'passwords' => 'users',
     ],
 
@@ -118,6 +118,13 @@ return [
     'password_timeout' => 10800,
 
 ];
+
+
+
+
+
+
+
 
 
 

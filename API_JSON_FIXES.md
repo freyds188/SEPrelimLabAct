@@ -209,3 +209,11 @@ The API communication between Next.js frontend and Laravel backend is now **bull
 
 
 
+
+
+
+
+
+
+
+

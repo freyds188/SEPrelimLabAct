@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\StoryController;
 use App\Http\Controllers\Api\CampaignController;
 use App\Http\Controllers\Api\GlossaryTermController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\MediaController;
+use App\Http\Controllers\Api\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -68,8 +70,27 @@ Route::prefix('v1')->group(function () {
     // Product routes
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/featured', [ProductController::class, 'featured']);
+    Route::get('/products/filters', [ProductController::class, 'filters']);
     Route::get('/products/category/{category}', [ProductController::class, 'byCategory']);
     Route::get('/products/{product}', [ProductController::class, 'show']);
+    Route::get('/products/{product}/related', [ProductController::class, 'related']);
+
+    // Protected routes (require authentication)
+    Route::middleware('auth')->group(function () {
+        // Order routes
+        Route::get('/orders', [OrderController::class, 'index']);
+        Route::post('/orders', [OrderController::class, 'store']);
+        Route::get('/orders/{order}', [OrderController::class, 'show']);
+        Route::get('/orders/shipping-options', [OrderController::class, 'shippingOptions']);
+        Route::post('/orders/calculate-totals', [OrderController::class, 'calculateTotals']);
+        
+        // Media routes
+        Route::get('/media', [MediaController::class, 'index']);
+        Route::post('/media', [MediaController::class, 'store']);
+        Route::get('/media/{media}', [MediaController::class, 'show']);
+        Route::delete('/media/{media}', [MediaController::class, 'destroy']);
+        Route::post('/media/{media}/retry-optimization', [MediaController::class, 'retryOptimization']);
+    });
 
     // Story routes
     Route::get('/stories', [StoryController::class, 'index']);
@@ -87,12 +108,36 @@ Route::prefix('v1')->group(function () {
     Route::get('/glossary/search', [GlossaryTermController::class, 'search']);
     Route::get('/glossary/{glossaryTerm}', [GlossaryTermController::class, 'show']);
 
+
+
+    // Test route without auth
+    Route::get('/auth/test', function () {
+        return response()->json(['message' => 'Route working', 'user' => auth()->user()]);
+    });
+    
+    // Simple test route
+    Route::get('/auth/me', function (Request $request) {
+        try {
+            $user = $request->user();
+            return response()->json([
+                'status' => 'success',
+                'user' => $user,
+                'message' => 'Auth test working'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ], 500);
+        }
+    });
+    
     // Protected routes (authentication required)
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('auth:api')->group(function () {
         // Auth routes (authenticated)
         Route::post('/auth/logout', [AuthController::class, 'logout']);
-        Route::get('/auth/me', [AuthController::class, 'me']);
-
+        
         // Weaver management (authenticated users)
         Route::post('/weavers', [WeaverController::class, 'store']);
         Route::put('/weavers/{weaver}', [WeaverController::class, 'update']);
@@ -117,6 +162,12 @@ Route::prefix('v1')->group(function () {
         Route::post('/glossary', [GlossaryTermController::class, 'store']);
         Route::put('/glossary/{glossaryTerm}', [GlossaryTermController::class, 'update']);
         Route::delete('/glossary/{glossaryTerm}', [GlossaryTermController::class, 'destroy']);
+
+        // Media management (authenticated users)
+        Route::post('/media', [MediaController::class, 'store']);
+        Route::post('/media/upload-url', [MediaController::class, 'getUploadUrl']);
+        Route::delete('/media/{media}', [MediaController::class, 'destroy']);
+        Route::post('/media/{media}/retry-optimization', [MediaController::class, 'retryOptimization']);
     });
 });
 

@@ -7,6 +7,10 @@ import { Button } from "@/components/ui/button"
 import { LocaleSwitcher } from "./locale-switcher"
 import { UserMenu } from "./user-menu"
 import { getLocaleFromPathname, getTranslations, getLocalizedPathname } from "@/lib/i18n"
+import { useCart } from "@/lib/cart-context"
+import { useAuth } from "@/lib/auth-context"
+import { ShoppingCart } from "lucide-react"
+import toast from "react-hot-toast"
 
 const navigation = [
   { name: "home", href: "/" },
@@ -22,6 +26,9 @@ export function Navbar() {
   const pathname = usePathname()
   const locale = getLocaleFromPathname(pathname)
   const t = getTranslations(locale)
+  const { getItemCount, isCartAccessible } = useCart()
+  const { isAuthenticated } = useAuth()
+  const cartItemCount = getItemCount()
 
   return (
     <nav className="bg-white border-b border-neutral-200 shadow-sm" role="navigation" aria-label="Main navigation">
@@ -57,6 +64,25 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center space-x-4">
+            {/* Cart Icon */}
+            <button
+              onClick={() => {
+                if (!isCartAccessible) {
+                  toast.error('You should log in first to view your cart');
+                  return;
+                }
+                window.location.href = getLocalizedPathname("/cart", locale);
+              }}
+              className="relative p-2 text-neutral-600 hover:text-brand-600 transition-colors"
+              aria-label="View shopping cart"
+            >
+              <ShoppingCart className="h-6 w-6" />
+              {cartItemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                  {cartItemCount > 99 ? '99+' : cartItemCount}
+                </span>
+              )}
+            </button>
             <LocaleSwitcher />
             <UserMenu />
             <div className="md:hidden">
