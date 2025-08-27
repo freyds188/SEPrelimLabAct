@@ -104,11 +104,17 @@ export default function ProductDetailPage() {
       return;
     }
     
+    // Get the best available image with proper fallbacks
+    const productImage = product.main_image_url || 
+                        (product.image_urls && product.image_urls.length > 0 ? product.image_urls[0] : null) ||
+                        '/placeholder-product.jpg';
+    
     addItem({
       product_id: product.id,
       name: product.name,
+      slug: product.slug,
       price: product.price,
-      image: product.main_image_url || product.image_urls[0],
+      image: productImage,
       weaver_name: product.weaver?.user?.name || product.weaver?.name || 'Unknown Weaver',
       quantity: quantity,
     });
@@ -190,7 +196,7 @@ export default function ProductDetailPage() {
           {/* Main Image */}
           <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
             <img
-              src={(product.image_urls && product.image_urls[selectedImage]) || product.main_image_url || '/placeholder-product.jpg'}
+              src={(product.image_urls && product.image_urls.length > selectedImage && product.image_urls[selectedImage]) || product.main_image_url || '/placeholder-product.jpg'}
               alt={product.name}
               className="w-full h-full object-cover"
             />

@@ -15,6 +15,7 @@ interface UploadedFile {
   status: 'uploading' | 'completed' | 'failed';
   error?: string;
   mediaId?: number;
+  uploadedUrl?: string;
   optimizedUrls?: {
     thumb?: string;
     card?: string;
@@ -99,7 +100,7 @@ export default function UploadDialog({
 
   const uploadSingleFile = async (fileData: UploadedFile): Promise<void> => {
     const formData = new FormData();
-    formData.append('file', fileData.file);
+    formData.append('image', fileData.file);
     formData.append('collection', collection || '');
     formData.append('preserve_exif', preserveExif.toString());
     
@@ -116,12 +117,13 @@ export default function UploadDialog({
       setUploadedFiles((prev) =>
         prev.map((file) =>
           file.id === fileData.id
-            ? {
+                          ? {
                 ...file,
                 status: 'completed' as const,
                 progress: 100,
                 mediaId: result.data.id,
                 optimizedUrls: result.data.optimized_paths,
+                uploadedUrl: result.data.url,
               }
             : file
         )
@@ -137,7 +139,7 @@ export default function UploadDialog({
             ? {
                 ...file,
                 status: 'failed' as const,
-                error: error.message,
+                error: error instanceof Error ? error.message : String(error),
               }
             : file
         )
@@ -249,7 +251,9 @@ export default function UploadDialog({
                     {/* Preview */}
                     <div className="flex-shrink-0">
                       <img
-                        src={fileData.preview}
+                        src={fileData.status === 'completed' && fileData.uploadedUrl 
+                          ? fileData.uploadedUrl 
+                          : fileData.preview}
                         alt={fileData.file.name}
                         className="w-12 h-12 object-cover rounded"
                       />

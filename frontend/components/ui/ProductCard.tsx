@@ -75,6 +75,7 @@ export default function ProductCard({
     addItem({
       product_id: product.id,
       name: product.name,
+      slug: product.slug,
       price: product.price,
       image: product.main_image_url || '/placeholder-product.jpg',
       weaver_name: product.weaver?.user?.name || product.weaver?.name || 'Unknown Weaver',

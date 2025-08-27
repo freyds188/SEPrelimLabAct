@@ -34,6 +34,17 @@ class OptimizeImageJob implements ShouldQueue
     public function handle(): void
     {
         try {
+            // Check if GD extension is available
+            if (!extension_loaded('gd')) {
+                $this->media->update([
+                    'optimization_status' => Media::STATUS_FAILED,
+                ]);
+                \Log::warning('Image optimization skipped - GD extension not available', [
+                    'media_id' => $this->media->id,
+                ]);
+                return;
+            }
+
             // Update status to processing
             $this->media->update(['optimization_status' => Media::STATUS_PROCESSING]);
 

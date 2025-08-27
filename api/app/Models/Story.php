@@ -13,7 +13,9 @@ class Story extends Model
     protected $fillable = [
         'weaver_id',
         'title',
+        'type',
         'content',
+        'blocks',
         'slug',
         'featured_image',
         'images',
@@ -22,14 +24,19 @@ class Story extends Model
         'views_count',
         'likes_count',
         'tags',
+        'language_tags',
         'published_at',
+        'scheduled_at',
     ];
 
     protected $casts = [
         'images' => 'array',
         'tags' => 'array',
+        'language_tags' => 'array',
+        'blocks' => 'array',
         'is_featured' => 'boolean',
         'published_at' => 'datetime',
+        'scheduled_at' => 'datetime',
     ];
 
     /**
@@ -87,6 +94,32 @@ class Story extends Model
     }
 
     /**
+     * Scope a query to only include scheduled stories.
+     */
+    public function scopeScheduled($query)
+    {
+        return $query->where('status', 'draft')
+                    ->whereNotNull('scheduled_at')
+                    ->where('scheduled_at', '<=', now());
+    }
+
+    /**
+     * Scope a query by story type.
+     */
+    public function scopeOfType($query, $type)
+    {
+        return $query->where('type', $type);
+    }
+
+    /**
+     * Scope a query by language tag.
+     */
+    public function scopeWithLanguage($query, $language)
+    {
+        return $query->whereJsonContains('language_tags', $language);
+    }
+
+    /**
      * Increment views count.
      */
     public function incrementViews(): void
@@ -108,5 +141,48 @@ class Story extends Model
     public function isPublished(): bool
     {
         return $this->status === 'published';
+    }
+
+    /**
+     * Check if story is scheduled.
+     */
+    public function isScheduled(): bool
+    {
+        return $this->status === 'draft' && $this->scheduled_at && $this->scheduled_at <= now();
+    }
+
+    /**
+     * Publish the story.
+     */
+    public function publish(): void
+    {
+        $this->update([
+            'status' => 'published',
+            'published_at' => now(),
+        ]);
+    }
+
+    /**
+     * Unpublish the story.
+     */
+    public function unpublish(): void
+    {
+        $this->update([
+            'status' => 'draft',
+            'published_at' => null,
+        ]);
+    }
+
+    /**
+     * Get the story type options.
+     */
+    public static function getTypeOptions(): array
+    {
+        return [
+            'photo_essay' => 'Photo Essay',
+            'oral_history' => 'Oral History',
+            'timeline' => 'Timeline',
+            'map' => 'Map',
+        ];
     }
 }

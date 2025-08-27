@@ -37,6 +37,10 @@ class Media extends Model
         'exif_data' => 'array',
     ];
 
+    protected $appends = [
+        'url'
+    ];
+
     // Optimization status constants
     const STATUS_PENDING = 'pending';
     const STATUS_PROCESSING = 'processing';

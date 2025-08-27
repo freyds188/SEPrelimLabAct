@@ -62,7 +62,7 @@ class MediaController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'file' => 'required|file|mimes:jpeg,jpg,png,gif,webp|max:10240', // 10MB max
+            'image' => 'required|file|mimes:jpeg,jpg,png,gif,webp|max:10240', // 10MB max
             'alt_text' => 'nullable|string|max:255',
             'caption' => 'nullable|string|max:1000',
             'collection' => 'nullable|string|max:100',
@@ -80,7 +80,7 @@ class MediaController extends Controller
         }
 
         try {
-            $file = $request->file('file');
+            $file = $request->file('image');
             $originalName = $file->getClientOriginalName();
             $extension = $file->getClientOriginalExtension();
             $mimeType = $file->getMimeType();
@@ -97,16 +97,26 @@ class MediaController extends Controller
             $exifData = [];
             
             if (str_starts_with($mimeType, 'image/')) {
-                $image = Image::make($file);
-                $metadata = [
-                    'width' => $image->width(),
-                    'height' => $image->height(),
-                    'format' => $image->mime(),
-                ];
+                try {
+                    $image = Image::make($file);
+                    $metadata = [
+                        'width' => $image->width(),
+                        'height' => $image->height(),
+                        'format' => $image->mime(),
+                    ];
 
-                // Extract EXIF data if requested
-                if ($request->boolean('preserve_exif')) {
-                    $exifData = $this->extractExifData($image);
+                    // Extract EXIF data if requested
+                    if ($request->boolean('preserve_exif')) {
+                        $exifData = $this->extractExifData($image);
+                    }
+                } catch (\Exception $e) {
+                    // If image processing fails, continue without metadata
+                    $metadata = [
+                        'width' => null,
+                        'height' => null,
+                        'format' => $mimeType,
+                        'error' => 'Image processing not available (GD extension required)'
+                    ];
                 }
             }
 
@@ -123,14 +133,14 @@ class MediaController extends Controller
                 'caption' => $request->caption,
                 'metadata' => $metadata,
                 'exif_data' => $exifData,
-                'mediable_type' => $request->mediable_type,
-                'mediable_id' => $request->mediable_id,
-                'collection' => $request->collection,
+                'mediable_type' => $request->mediable_type ?? 'App\Models\User',
+                'mediable_id' => $request->mediable_id ?? auth()->id(),
+                'collection' => $request->collection ?? 'default',
                 'optimization_status' => Media::STATUS_PENDING,
             ]);
 
-            // Queue image optimization job
-            if (str_starts_with($mimeType, 'image/')) {
+            // Queue image optimization job (only if GD extension is available)
+            if (str_starts_with($mimeType, 'image/') && extension_loaded('gd')) {
                 OptimizeImageJob::dispatch($media);
             }
 

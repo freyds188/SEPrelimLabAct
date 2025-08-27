@@ -27,7 +27,7 @@ Route::get('/ping', function () {
     return ['message' => 'pong'];
 });
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+Route::middleware('auth')->get('/user', function (Request $request) {
     return $request->user();
 });
 
@@ -84,17 +84,20 @@ Route::prefix('v1')->group(function () {
         Route::get('/orders/shipping-options', [OrderController::class, 'shippingOptions']);
         Route::post('/orders/calculate-totals', [OrderController::class, 'calculateTotals']);
         
-        // Media routes
+        // Media routes (protected)
         Route::get('/media', [MediaController::class, 'index']);
         Route::post('/media', [MediaController::class, 'store']);
         Route::get('/media/{media}', [MediaController::class, 'show']);
         Route::delete('/media/{media}', [MediaController::class, 'destroy']);
         Route::post('/media/{media}/retry-optimization', [MediaController::class, 'retryOptimization']);
+        Route::post('/media/upload-url', [MediaController::class, 'getUploadUrl']);
     });
 
     // Story routes
     Route::get('/stories', [StoryController::class, 'index']);
     Route::get('/stories/featured', [StoryController::class, 'featured']);
+    Route::get('/stories/types', [StoryController::class, 'types']);
+    Route::get('/stories/slug/{slug}', [StoryController::class, 'showBySlug']);
     Route::get('/stories/{story}', [StoryController::class, 'show']);
 
     // Campaign routes
@@ -132,9 +135,47 @@ Route::prefix('v1')->group(function () {
             ], 500);
         }
     });
+
+    // Debug authentication route
+    Route::middleware(['auth'])->get('/auth/debug', function (Request $request) {
+        return response()->json([
+            'status' => 'success',
+            'user' => $request->user(),
+            'guard' => 'sanctum',
+            'token' => $request->bearerToken(),
+            'message' => 'Authentication debug info'
+        ]);
+    });
+
+    // Simple test route with auth
+    Route::middleware(['auth'])->get('/auth/test-simple', function (Request $request) {
+        return response()->json([
+            'status' => 'success',
+            'user' => $request->user(),
+            'message' => 'Simple auth test'
+        ]);
+    });
+
+    // Public test route (no auth)
+    Route::get('/auth/test-public', function () {
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Public route working'
+        ]);
+    });
+
+    // Test authentication route
+    Route::middleware(['auth'])->get('/test-auth', function (Request $request) {
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Authentication working!',
+            'user_id' => $request->user()->id,
+            'user_email' => $request->user()->email
+        ]);
+    });
     
     // Protected routes (authentication required)
-    Route::middleware('auth:api')->group(function () {
+    Route::middleware(['auth'])->group(function () {
         // Auth routes (authenticated)
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         
@@ -152,6 +193,8 @@ Route::prefix('v1')->group(function () {
         Route::post('/stories', [StoryController::class, 'store']);
         Route::put('/stories/{story}', [StoryController::class, 'update']);
         Route::delete('/stories/{story}', [StoryController::class, 'destroy']);
+        Route::post('/stories/{story}/publish', [StoryController::class, 'publish']);
+        Route::post('/stories/{story}/unpublish', [StoryController::class, 'unpublish']);
 
         // Campaign management (authenticated users)
         Route::post('/campaigns', [CampaignController::class, 'store']);
@@ -162,12 +205,6 @@ Route::prefix('v1')->group(function () {
         Route::post('/glossary', [GlossaryTermController::class, 'store']);
         Route::put('/glossary/{glossaryTerm}', [GlossaryTermController::class, 'update']);
         Route::delete('/glossary/{glossaryTerm}', [GlossaryTermController::class, 'destroy']);
-
-        // Media management (authenticated users)
-        Route::post('/media', [MediaController::class, 'store']);
-        Route::post('/media/upload-url', [MediaController::class, 'getUploadUrl']);
-        Route::delete('/media/{media}', [MediaController::class, 'destroy']);
-        Route::post('/media/{media}/retry-optimization', [MediaController::class, 'retryOptimization']);
     });
 });
 
