@@ -41,16 +41,9 @@ interface StoryForm {
   tags: string[];
   language_tags: string[];
   scheduled_at: string;
-  weaver_id: number | null;
 }
 
-interface Weaver {
-  id: number;
-  name: string;
-  user?: {
-    name: string;
-  };
-}
+
 
 interface LocaleCreateStoryPageProps {
   params: {
@@ -64,7 +57,6 @@ export default function LocaleCreateStoryPage({ params }: LocaleCreateStoryPageP
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
-  const [weavers, setWeavers] = useState<Weaver[]>([]);
   const [newTag, setNewTag] = useState('');
   const [newLanguage, setNewLanguage] = useState('');
 
@@ -80,7 +72,6 @@ export default function LocaleCreateStoryPage({ params }: LocaleCreateStoryPageP
     tags: [],
     language_tags: [],
     scheduled_at: '',
-    weaver_id: null,
   });
 
   useEffect(() => {
@@ -89,21 +80,9 @@ export default function LocaleCreateStoryPage({ params }: LocaleCreateStoryPageP
       router.push('/auth/login');
       return;
     }
-
-    fetchWeavers();
   }, [isAuthenticated]);
 
-  const fetchWeavers = async () => {
-    try {
-      const result = await apiService.request('/weavers');
-      
-      if (result.success) {
-        setWeavers(result.data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch weavers:', error);
-    }
-  };
+
 
   const handleInputChange = (field: keyof StoryForm, value: any) => {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -445,34 +424,6 @@ export default function LocaleCreateStoryPage({ params }: LocaleCreateStoryPageP
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Weaver Selection (Optional) */}
-            <Card>
-              <CardHeader>
-                <CardTitle>{params.locale === 'fil' ? 'Manghahabi (Opsyonal)' : 'Weaver (Optional)'}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Select value={form.weaver_id ? form.weaver_id.toString() : 'none'} onValueChange={(value) => handleInputChange('weaver_id', value === 'none' ? null : parseInt(value))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={params.locale === 'fil' ? 'Pumili ng manghahabi' : 'Select weaver'} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">{params.locale === 'fil' ? 'Walang Manghahabi' : 'No Weaver'}</SelectItem>
-                    {weavers.map((weaver) => (
-                      <SelectItem key={weaver.id} value={weaver.id.toString()}>
-                        {weaver.user?.name || weaver.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-sm text-gray-500 mt-2">
-                  {params.locale === 'fil'
-                    ? 'Piliin ang manghahabi kung ang kwento ay tungkol sa isang partikular na tao.'
-                    : 'Select a weaver if the story is about a specific person.'
-                  }
-                </p>
-              </CardContent>
-            </Card>
-
             {/* Tags */}
             <Card>
               <CardHeader>

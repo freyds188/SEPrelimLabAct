@@ -18,7 +18,6 @@ const navigation = [
   { name: "stories", href: "/stories" },
   { name: "donate", href: "/donate" },
   { name: "glossary", href: "/glossary" },
-  { name: "weavers", href: "/weavers" },
   { name: "about", href: "/about" },
 ]
 
@@ -34,6 +33,7 @@ export function Navbar() {
     <nav className="bg-white border-b border-neutral-200 shadow-sm" role="navigation" aria-label="Main navigation">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
+          {/* Logo */}
           <div className="flex items-center">
             <Link 
               href={getLocalizedPathname("/", locale)} 
@@ -44,25 +44,29 @@ export function Navbar() {
             </Link>
           </div>
           
-          <div className="hidden md:flex items-center space-x-8" role="menubar">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={getLocalizedPathname(item.href, locale)}
-                className={cn(
-                  "text-sm font-medium transition-colors hover:text-brand-600",
-                  pathname === getLocalizedPathname(item.href, locale)
-                    ? "text-brand-600"
-                    : "text-neutral-600"
-                )}
-                role="menuitem"
-                aria-current={pathname === getLocalizedPathname(item.href, locale) ? "page" : undefined}
-              >
-                {t.nav[item.name as keyof typeof t.nav]}
-              </Link>
-            ))}
+          {/* Centered Navigation */}
+          <div className="hidden md:flex items-center justify-center flex-1">
+            <div className="flex items-center space-x-8" role="menubar">
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={getLocalizedPathname(item.href, locale)}
+                  className={cn(
+                    "text-sm font-medium transition-colors hover:text-brand-600",
+                    pathname === getLocalizedPathname(item.href, locale)
+                      ? "text-brand-600"
+                      : "text-neutral-600"
+                  )}
+                  role="menuitem"
+                  aria-current={pathname === getLocalizedPathname(item.href, locale) ? "page" : undefined}
+                >
+                  {t.nav[item.name as keyof typeof t.nav]}
+                </Link>
+              ))}
+            </div>
           </div>
 
+          {/* Right Side Elements */}
           <div className="flex items-center space-x-4">
             {/* Cart Icon */}
             <button
