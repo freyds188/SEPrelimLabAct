@@ -10,6 +10,13 @@ use App\Http\Controllers\Api\GlossaryTermController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\MediaController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\AdminAuthController;
+use App\Http\Controllers\Api\AdminDashboardController;
+use App\Http\Controllers\Api\AdminUserController;
+use App\Http\Controllers\Api\AdminProductController;
+use App\Http\Controllers\Api\AdminContentModerationController;
+use App\Http\Controllers\Api\AdminFinancialController;
+use App\Http\Controllers\Api\AdminAnnouncementController;
 
 /*
 |--------------------------------------------------------------------------
@@ -205,6 +212,75 @@ Route::prefix('v1')->group(function () {
         Route::post('/glossary', [GlossaryTermController::class, 'store']);
         Route::put('/glossary/{glossaryTerm}', [GlossaryTermController::class, 'update']);
         Route::delete('/glossary/{glossaryTerm}', [GlossaryTermController::class, 'destroy']);
+    });
+
+    // Admin API routes
+    Route::prefix('admin')->group(function () {
+        // Admin authentication routes (public)
+        Route::post('/auth/login', [AdminAuthController::class, 'login']);
+        
+        // Protected admin routes
+        Route::middleware(['auth', 'admin'])->group(function () {
+            // Admin authentication
+            Route::post('/auth/logout', [AdminAuthController::class, 'logout']);
+            Route::get('/auth/me', [AdminAuthController::class, 'me']);
+            Route::post('/auth/refresh', [AdminAuthController::class, 'refresh']);
+            Route::post('/auth/check-permission', [AdminAuthController::class, 'checkPermission']);
+            
+            // Dashboard metrics
+            Route::get('/dashboard/metrics', [AdminDashboardController::class, 'getMetrics']);
+            Route::get('/dashboard/overview', [AdminDashboardController::class, 'getOverview']);
+            
+            // User management
+            Route::get('/users', [AdminUserController::class, 'index']);
+            Route::get('/users/{user}', [AdminUserController::class, 'show']);
+            Route::put('/users/{user}', [AdminUserController::class, 'update']);
+            Route::delete('/users/{user}', [AdminUserController::class, 'destroy']);
+            Route::post('/users/{user}/approve', [AdminUserController::class, 'approve']);
+            Route::post('/users/{user}/ban', [AdminUserController::class, 'ban']);
+            Route::post('/users/{user}/unban', [AdminUserController::class, 'unban']);
+            
+            // Product management
+            Route::get('/products', [AdminProductController::class, 'getProducts']);
+            Route::post('/products', [AdminProductController::class, 'createProduct']);
+            Route::put('/products/{product}', [AdminProductController::class, 'updateProduct']);
+            Route::delete('/products/{product}', [AdminProductController::class, 'deleteProduct']);
+            Route::post('/products/bulk-upload', [AdminProductController::class, 'bulkUpload']);
+            Route::post('/products/{product}/approve', [AdminProductController::class, 'approveProduct']);
+            Route::get('/products/stats', [AdminProductController::class, 'getProductStats']);
+            
+            // Content moderation
+            Route::get('/moderation/queue', [AdminContentModerationController::class, 'getModerationQueue']);
+            Route::post('/moderation/assign', [AdminContentModerationController::class, 'assignContent']);
+            Route::post('/moderation/{queueItem}/review', [AdminContentModerationController::class, 'reviewContent']);
+            Route::get('/moderation/stories', [AdminContentModerationController::class, 'getStoriesForModeration']);
+            Route::post('/moderation/stories/{story}/approve', [AdminContentModerationController::class, 'approveStory']);
+            Route::post('/moderation/stories/{story}/reject', [AdminContentModerationController::class, 'rejectStory']);
+            Route::get('/moderation/campaigns', [AdminContentModerationController::class, 'getCampaignsForModeration']);
+            Route::post('/moderation/campaigns/{campaign}/approve', [AdminContentModerationController::class, 'approveCampaign']);
+            Route::get('/moderation/stats', [AdminContentModerationController::class, 'getModerationStats']);
+            
+            // Financial management
+            Route::get('/financial/overview', [AdminFinancialController::class, 'getFinancialOverview']);
+            Route::get('/financial/orders', [AdminFinancialController::class, 'getOrders']);
+            Route::put('/financial/orders/{order}/status', [AdminFinancialController::class, 'updateOrderStatus']);
+            Route::post('/financial/orders/{order}/refund', [AdminFinancialController::class, 'processRefund']);
+            Route::get('/financial/payouts', [AdminFinancialController::class, 'getPayouts']);
+            Route::post('/financial/payouts/{payout}/process', [AdminFinancialController::class, 'processPayout']);
+            Route::get('/financial/reports', [AdminFinancialController::class, 'getFinancialReports']);
+            
+            // Announcement system
+            Route::get('/announcements', [AdminAnnouncementController::class, 'getAnnouncements']);
+            Route::post('/announcements', [AdminAnnouncementController::class, 'createAnnouncement']);
+            Route::put('/announcements/{announcement}', [AdminAnnouncementController::class, 'updateAnnouncement']);
+            Route::delete('/announcements/{announcement}', [AdminAnnouncementController::class, 'deleteAnnouncement']);
+            Route::post('/announcements/{announcement}/approve', [AdminAnnouncementController::class, 'approveAnnouncement']);
+            Route::post('/announcements/{announcement}/publish', [AdminAnnouncementController::class, 'publishAnnouncement']);
+            Route::post('/announcements/{announcement}/deactivate', [AdminAnnouncementController::class, 'deactivateAnnouncement']);
+            Route::get('/announcements/stats', [AdminAnnouncementController::class, 'getAnnouncementStats']);
+            Route::get('/announcements/public', [AdminAnnouncementController::class, 'getPublicAnnouncements']);
+            Route::post('/announcements/bulk-status', [AdminAnnouncementController::class, 'bulkUpdateStatus']);
+        });
     });
 });
 

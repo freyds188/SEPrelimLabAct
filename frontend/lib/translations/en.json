@@ -29,10 +29,10 @@
         "description": "Browse our collection of authentic handwoven textiles, each piece carefully crafted by skilled Filipino artisans.",
         "button": "View Collection"
       },
-      "weavers": {
-        "title": "Meet Our Weavers",
-        "description": "Learn about the talented artisans behind our textiles and their cultural heritage.",
-        "button": "Meet Weavers"
+      "glossary": {
+        "title": "Weaving Glossary",
+        "description": "Explore our comprehensive glossary of traditional weaving terms, techniques, and cultural significance.",
+        "button": "View Glossary"
       },
       "donate": {
         "title": "Support the Community",
@@ -58,7 +58,7 @@
     "shop": {
       "title": "Shop",
       "allProducts": "All Products",
-      "meetWeavers": "Meet Our Weavers"
+      "meetWeavers": "View Glossary"
     },
     "learn": {
       "title": "Learn",

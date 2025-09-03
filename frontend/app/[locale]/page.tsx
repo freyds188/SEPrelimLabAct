@@ -9,13 +9,11 @@ import {
   ShoppingBag, 
   BookOpen, 
   Heart, 
-  Users, 
   Globe, 
   Award,
   ArrowRight,
   Sparkles,
-  Star,
-  TrendingUp
+  Star
 } from 'lucide-react'
 
 interface LocalePageProps {
@@ -101,14 +99,16 @@ export default function LocalePage({ params }: LocalePageProps) {
                 <div className="w-16 h-16 bg-gradient-to-br from-brand-100 to-brand-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                   <ShoppingBag className="w-8 h-8 text-brand-600" />
                 </div>
-                <CardTitle className="h3 text-brand-700">{t.home.features.shop.title}</CardTitle>
-                <CardDescription className="body-sm text-neutral-600">
+                <CardTitle className="h3 text-brand-700">
+                  {t.home.features.shop.title}
+                </CardTitle>
+                <CardDescription className="text-neutral-600">
                   {t.home.features.shop.description}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="pt-0">
-                <Button asChild className="w-full bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 group">
-                  <Link href={`/${params.locale}/shop`} className="flex items-center justify-center gap-2">
+              <CardContent className="text-center pt-0">
+                <Button asChild variant="outline" className="group border-brand-200 hover:border-brand-300 hover:bg-brand-50">
+                  <Link href={`/${params.locale}/shop`} className="flex items-center gap-2">
                     {t.home.features.shop.button}
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                   </Link>
@@ -120,17 +120,19 @@ export default function LocalePage({ params }: LocalePageProps) {
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent-400 to-accent-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
               <CardHeader className="text-center pb-4">
                 <div className="w-16 h-16 bg-gradient-to-br from-accent-100 to-accent-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <Users className="w-8 h-8 text-accent-600" />
+                  <BookOpen className="w-8 h-8 text-accent-600" />
                 </div>
-                <CardTitle className="h3 text-accent-700">{t.home.features.weavers.title}</CardTitle>
-                <CardDescription className="body-sm text-neutral-600">
-                  {t.home.features.weavers.description}
+                <CardTitle className="h3 text-accent-700">
+                  {t.home.features.glossary.title}
+                </CardTitle>
+                <CardDescription className="text-neutral-600">
+                  {t.home.features.glossary.description}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="pt-0">
-                <Button asChild variant="outline" className="w-full border-2 border-accent-200 hover:border-accent-300 hover:bg-accent-50 group">
-                  <Link href={`/${params.locale}/weavers`} className="flex items-center justify-center gap-2">
-                    {t.home.features.weavers.button}
+              <CardContent className="text-center pt-0">
+                <Button asChild variant="outline" className="group border-accent-200 hover:border-accent-300 hover:bg-accent-50">
+                  <Link href={`/${params.locale}/glossary`} className="flex items-center gap-2">
+                    {t.home.features.glossary.button}
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                   </Link>
                 </Button>
@@ -143,14 +145,16 @@ export default function LocalePage({ params }: LocalePageProps) {
                 <div className="w-16 h-16 bg-gradient-to-br from-brand-100 to-brand-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                   <Heart className="w-8 h-8 text-brand-600" />
                 </div>
-                <CardTitle className="h3 text-brand-700">{t.home.features.donate.title}</CardTitle>
-                <CardDescription className="body-sm text-neutral-600">
+                <CardTitle className="h3 text-brand-700">
+                  {t.home.features.donate.title}
+                </CardTitle>
+                <CardDescription className="text-neutral-600">
                   {t.home.features.donate.description}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="pt-0">
-                <Button asChild variant="outline" className="w-full border-2 border-brand-200 hover:border-brand-300 hover:bg-brand-50 group">
-                  <Link href={`/${params.locale}/donate`} className="flex items-center justify-center gap-2">
+              <CardContent className="text-center pt-0">
+                <Button asChild variant="outline" className="group border-brand-200 hover:border-brand-300 hover:bg-brand-50">
+                  <Link href={`/${params.locale}/donate`} className="flex items-center gap-2">
                     {t.home.features.donate.button}
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                   </Link>
@@ -197,7 +201,7 @@ export default function LocalePage({ params }: LocalePageProps) {
             </div>
             <div className="group">
               <div className="inline-flex items-center gap-3 bg-gradient-to-r from-accent-100 to-brand-100 rounded-lg px-4 py-2 mb-4">
-                <TrendingUp className="w-5 h-5 text-accent-600" />
+                <Heart className="w-5 h-5 text-accent-600" />
                 <span className="text-accent-700 font-medium text-sm">
                   {t.home.mission.fairTrade.title}
                 </span>

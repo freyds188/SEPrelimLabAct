@@ -10,6 +10,13 @@ export function middleware(request: NextRequest) {
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   )
 
+  // Handle admin routes - redirect to default locale if no locale
+  if (pathname.startsWith('/admin') && !pathnameHasLocale) {
+    const locale = defaultLocale
+    request.nextUrl.pathname = `/${locale}${pathname}`
+    return NextResponse.redirect(request.nextUrl)
+  }
+
   if (pathnameHasLocale) return
 
   // Redirect to default locale if no locale is present

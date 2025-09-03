@@ -29,10 +29,10 @@
         "description": "Tingnan ang aming koleksyon ng tunay na kamay na ginawang tela, bawat piraso ay maingat na ginawa ng mga dalubhasang Filipino artisan.",
         "button": "Tingnan ang Koleksyon"
       },
-      "weavers": {
-        "title": "Kilalanin ang Aming Mga Manghahabi",
-        "description": "Alamin ang tungkol sa mga talentadong artisan sa likod ng aming mga tela at kanilang pamanang kultural.",
-        "button": "Kilalanin ang Mga Manghahabi"
+      "glossary": {
+        "title": "Glosaryo ng Paghahabi",
+        "description": "Galugarin ang aming komprehensibong glosaryo ng tradisyonal na mga termino sa paghahabi, pamamaraan, at kahalagahang kultural.",
+        "button": "Tingnan ang Glosaryo"
       },
       "donate": {
         "title": "Suportahan ang Komunidad",
@@ -58,7 +58,7 @@
     "shop": {
       "title": "Tindahan",
       "allProducts": "Lahat ng Produkto",
-      "meetWeavers": "Kilalanin ang Aming Mga Manghahabi"
+      "meetWeavers": "Tingnan ang Glosaryo"
     },
     "learn": {
       "title": "Matuto",

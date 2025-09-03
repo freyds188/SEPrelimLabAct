@@ -15,7 +15,8 @@ import {
   Phone,
   Sparkles,
   Target,
-  Shield
+  Shield,
+  TrendingUp
 } from 'lucide-react'
 
 interface LocaleAboutPageProps {
@@ -75,28 +76,27 @@ export default function LocaleAboutPage({ params }: LocaleAboutPageProps) {
             <h2 className="h2 text-balance text-neutral-800">
               {params.locale === 'fil' ? 'Ang Aming Misyon' : 'Our Mission'}
             </h2>
-            <div className="space-y-4 text-neutral-700">
+            <div className="space-y-6 text-neutral-700">
               <p className="body leading-relaxed">
                 {params.locale === 'fil'
-                  ? 'Kami ay nakatuon sa pangangalaga ng mga tradisyon sa paghahabi sa Pilipinas habang nagbibigay ng patas na kabayaran sa mga artisan at nagtataguyod ng pamanang kultural.'
-                  : 'We are dedicated to preserving Filipino weaving traditions while providing fair compensation to artisans and promoting cultural heritage.'
+                  ? 'Sa CordiWeave, kami ay buong puso na nakatuon sa pangangalaga, pagtataguyod, at pagdiriwang ng mayamang tapestry ng mga tradisyon sa paghahabi ng Cordillera na nakaugat na sa kultural na tela ng Pilipinas sa loob ng mga siglo. Ang aming misyon ay higit pa sa simpleng pangangalaga—kami ay nakatuon sa pagdadala ng mga pambihirang tradisyonal na sining sa pandaigdigang entablado, tinitiyak na ang mundo ay makilala at mapahalagahan ang walang katulad na craftsmanship, kultural na kahalagahan, at espirituwal na lalim na nakatanim sa bawat sinulid ng mga tela ng Cordillera.'
+                  : 'At CordiWeave, we are passionately committed to preserving, promoting, and celebrating the rich tapestry of Cordillera weaving traditions that have been woven into the cultural fabric of the Philippines for centuries. Our mission extends far beyond mere preservation—we are dedicated to bringing these extraordinary artistic traditions to the global stage, ensuring that the world recognizes and appreciates the unparalleled craftsmanship, cultural significance, and spiritual depth embedded in every thread of Cordillera textiles.'
                 }
               </p>
               <p className="body leading-relaxed">
                 {params.locale === 'fil'
-                  ? 'Sa pamamagitan ng aming platform, nais naming ikonekta ang mga artisan sa mga customer na nagbibigay-halaga sa tradisyonal na craftsmanship at kultura.'
-                  : 'Through our platform, we want to connect artisans with customers who value traditional craftsmanship and culture.'
+                  ? 'Sa pamamagitan ng aming komprehensibong platform, kami ay nagsisilbing tulay sa pagitan ng sinaunang karunungan ng mga manghahabi ng Cordillera at pandaigdigang madla na sabik na tuklasin ang tunay na pamanang kultural. Naniniwala kami na bawat piraso ng kamay na ginawang tela ay nagkukuwento—isang kwento ng katatagan, komunidad, espirituwalidad, at ang hindi mababasag na ugnayan sa pagitan ng mga tao at kanilang lupang ninuno. Ang aming misyon ay palakasin ang mga tinig na ito, ibahagi ang mga kwentong ito, at lumikha ng napapanatiling mga oportunidad sa ekonomiya na nagbibigay karangalan sa tradisyonal na kaalaman na ipinasa sa mga henerasyon.'
+                  : 'Through our comprehensive platform, we serve as a bridge between the ancient wisdom of Cordillera weavers and a global audience eager to discover authentic cultural heritage. We believe that every piece of handwoven fabric tells a story—a story of resilience, community, spirituality, and the unbreakable bond between people and their ancestral lands. Our mission is to amplify these voices, to share these stories, and to create sustainable economic opportunities that honor the traditional knowledge passed down through generations.'
                 }
               </p>
             </div>
           </div>
           <div className="relative group">
-            <div className="absolute -inset-4 bg-gradient-to-r from-brand-200 to-accent-200 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
             <div className="relative">
               <img
                 src="/images/mission-image.jpg"
                 alt="Traditional Filipino Weaving Mission"
-                className="w-full h-auto max-w-md mx-auto rounded-xl shadow-2xl object-cover transform group-hover:scale-105 transition duration-500"
+                className="w-full h-auto max-w-md mx-auto rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] hover:shadow-[0_25px_50px_-20px_rgba(0,0,0,0.15)] object-cover transform group-hover:scale-105 transition-all duration-500"
               />
             </div>
           </div>
@@ -114,28 +114,28 @@ export default function LocaleAboutPage({ params }: LocaleAboutPageProps) {
             <h2 className="h2 text-balance text-neutral-800 mb-4">
               {params.locale === 'fil' ? 'Ang Aming Mga Halaga' : 'Our Values'}
             </h2>
-            <p className="body text-neutral-600 max-w-2xl mx-auto">
+            <p className="body text-neutral-600 max-w-3xl mx-auto">
               {params.locale === 'fil'
-                ? 'Ang mga prinsipyo na gumagabay sa aming trabaho at relasyon sa komunidad.'
-                : 'The principles that guide our work and community relationships.'
+                ? 'Ang mga pangunahing prinsipyo na gumagabay sa aming trabaho, humuhubog sa aming mga relasyon sa mga komunidad, at nagtutulak sa aming commitment sa pangangalaga ng kultura at pandaigdigang pagkilala.'
+                : 'The fundamental principles that guide our work, shape our relationships with communities, and drive our commitment to cultural preservation and global recognition.'
               }
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-white to-brand-50 hover:from-brand-50 hover:to-white">
               <CardHeader className="text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-brand-100 to-brand-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                   <Globe className="w-8 h-8 text-brand-600" />
                 </div>
                 <CardTitle className="h3 text-brand-700">
-                  {params.locale === 'fil' ? 'Pangangalaga ng Kultura' : 'Cultural Preservation'}
+                  {params.locale === 'fil' ? 'Paggalang at Respeto sa Kultura' : 'Cultural Reverence & Respect'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-center">
                 <p className="body-sm text-neutral-600 leading-relaxed">
                   {params.locale === 'fil'
-                    ? 'Nakikipagtulungan kami sa mga komunidad upang mapanatili ang tradisyonal na pamamaraan ng paghahabi at mga pattern na ipinasa sa mga henerasyon.'
-                    : 'We work with communities to preserve traditional weaving techniques and patterns passed down through generations.'
+                    ? 'Kami ay lumalapit sa bawat aspeto ng aming trabaho na may malalim na respeto sa mga tradisyong kultural ng Cordillera, mga paniniwalang espirituwal, at mga halaga ng komunidad.'
+                    : 'We approach every aspect of our work with deep respect for Cordillera cultural traditions, spiritual beliefs, and community values.'
                   }
                 </p>
               </CardContent>
@@ -144,17 +144,17 @@ export default function LocaleAboutPage({ params }: LocaleAboutPageProps) {
             <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-white to-accent-50 hover:from-accent-50 hover:to-white">
               <CardHeader className="text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-accent-100 to-accent-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <Heart className="w-8 h-8 text-accent-600" />
+                  <Award className="w-8 h-8 text-accent-600" />
                 </div>
                 <CardTitle className="h3 text-accent-700">
-                  {params.locale === 'fil' ? 'Patas na Kalakalan' : 'Fair Trade'}
+                  {params.locale === 'fil' ? 'Pagiging Tunay at Kultural na Integridad' : 'Authenticity & Cultural Integrity'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-center">
                 <p className="body-sm text-neutral-600 leading-relaxed">
                   {params.locale === 'fil'
-                    ? 'Bawat pagbili ay direktang sumusuporta sa mga artisan at kanilang pamilya, tinitiyak ang patas na sahod at napapanatiling kabuhayan.'
-                    : 'Every purchase directly supports artisans and their families, ensuring fair wages and sustainable livelihoods.'
+                    ? 'Kami ay hindi nagbabago sa aming commitment sa pagiging tunay, tinitiyak na bawat kwentong ibinahagi ay nagpapanatili ng tunay na essence ng mga tradisyon sa paghahabi ng Cordillera.'
+                    : 'We are unwavering in our commitment to authenticity, ensuring that every story shared maintains the true essence of Cordillera weaving traditions.'
                   }
                 </p>
               </CardContent>
@@ -163,17 +163,76 @@ export default function LocaleAboutPage({ params }: LocaleAboutPageProps) {
             <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-white to-brand-50 hover:from-brand-50 hover:to-white">
               <CardHeader className="text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-brand-100 to-brand-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <Shield className="w-8 h-8 text-brand-600" />
+                  <Users className="w-8 h-8 text-brand-600" />
                 </div>
                 <CardTitle className="h3 text-brand-700">
-                  {params.locale === 'fil' ? 'Kalidad at Craftsmanship' : 'Quality & Craftsmanship'}
+                  {params.locale === 'fil' ? 'Partnership sa Komunidad at Empowerment' : 'Community Partnership & Empowerment'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-center">
                 <p className="body-sm text-neutral-600 leading-relaxed">
                   {params.locale === 'fil'
-                    ? 'Nakikipagtulungan kami lamang sa mga artisan na gumagamit ng tradisyonal na pamamaraan at mataas na kalidad na materyales.'
-                    : 'We only work with artisans who use traditional techniques and high-quality materials.'
+                    ? 'Naniniwala kami sa pagtatrabaho kasama ang mga komunidad ng Cordillera bilang pantay na mga partner, hindi bilang mga subject ng dokumentasyon.'
+                    : 'We believe in working alongside Cordillera communities as equal partners, not as subjects of documentation.'
+                  }
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-white to-accent-50 hover:from-accent-50 hover:to-white">
+              <CardHeader className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-accent-100 to-accent-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <TrendingUp className="w-8 h-8 text-accent-600" />
+                </div>
+                <CardTitle className="h3 text-accent-700">
+                  {params.locale === 'fil' ? 'Environmental at Kultural na Sustainability' : 'Environmental & Cultural Sustainability'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="body-sm text-neutral-600 leading-relaxed">
+                  {params.locale === 'fil'
+                    ? 'Kami ay nakatuon sa mga napapanatiling gawain na nagbibigay karangalan sa parehong natural na kapaligiran at kultural na mga tradisyon.'
+                    : 'We are committed to sustainable practices that honor both the natural environment and cultural traditions.'
+                  }
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-white to-brand-50 hover:from-brand-50 hover:to-white">
+              <CardHeader className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-brand-100 to-brand-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <Globe className="w-8 h-8 text-brand-600" />
+                </div>
+                <CardTitle className="h3 text-brand-700">
+                  {params.locale === 'fil' ? 'Pandaigdigang Accessibility at Kultural na Edukasyon' : 'Global Accessibility & Cultural Education'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="body-sm text-neutral-600 leading-relaxed">
+                  {params.locale === 'fil'
+                    ? 'Naniniwala kami na ang kultural na heritage ay dapat na accessible sa lahat, anuman ang geographical na lokasyon o kultural na background.'
+                    : 'We believe that cultural heritage should be accessible to everyone, regardless of geographical location or cultural background.'
+                  }
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-white to-accent-50 hover:from-accent-50 hover:to-white">
+              <CardHeader className="text-center">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-accent-100 to-accent-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <Sparkles className="w-8 h-8 text-accent-600" />
+                  </div>
+                  <CardTitle className="h3 text-accent-700">
+                    {params.locale === 'fil' ? 'Inobasyon sa Pamamagitan ng Tradisyon' : 'Innovation Through Tradition'}
+                  </CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="body-sm text-neutral-600 leading-relaxed">
+                  {params.locale === 'fil'
+                    ? 'Kami ay tumatanggap ng mga innovative na approach sa pangangalaga ng kultura habang nananatiling malalim na nakaugat sa tradisyonal na mga halaga at gawain.'
+                    : 'We embrace innovative approaches to cultural preservation while remaining deeply rooted in traditional values and practices.'
                   }
                 </p>
               </CardContent>
