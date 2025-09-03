@@ -28,14 +28,16 @@ class WeaverFactory extends Factory
             'Furniture', 'Textiles', 'Accessories', 'Home Decor'
         ];
 
+        // ONLY Cordillera locations
         $locations = [
-            'Bohol', 'Cebu', 'Davao', 'Palawan', 'Mindanao',
-            'Luzon', 'Visayas', 'Manila', 'Quezon City'
+            'Cordillera Administrative Region',
+            'Benguet', 'Ifugao', 'Kalinga', 'Apayao', 'Mountain Province', 'Abra',
+            'Baguio City', 'La Trinidad', 'Bontoc', 'Tabuk', 'Kabugao', 'Bangued'
         ];
 
         return [
             'user_id' => User::factory(),
-            'name' => fake()->name(),
+            'name' => 'CordiWeave',
             'bio' => fake()->paragraph(3),
             'location' => fake()->randomElement($locations),
             'phone' => fake()->phoneNumber(),

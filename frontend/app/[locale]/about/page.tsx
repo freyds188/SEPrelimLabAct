@@ -33,6 +33,17 @@ export default function LocaleAboutPage({ params }: LocaleAboutPageProps) {
       <div className="relative bg-gradient-to-br from-brand-50 via-white to-accent-50 py-20">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23fef3c7%22%20fill-opacity%3D%220.1%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          {/* CordiWeave Logo */}
+          <div className="mb-8 flex justify-center">
+            <div className="w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden shadow-2xl border-4 border-white bg-white">
+              <img
+                src="/images/CordiWeave1.jpg"
+                alt="CordiWeave Logo"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+          
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-100 to-accent-100 border border-brand-200 rounded-full px-6 py-2 mb-6">
             <Sparkles className="w-4 h-4 text-brand-600" />
             <Badge variant="secondary" className="bg-transparent border-0 text-brand-700 font-medium">
@@ -226,6 +237,17 @@ export default function LocaleAboutPage({ params }: LocaleAboutPageProps) {
 
         {/* Contact Section */}
         <div className="text-center">
+          {/* Small CordiWeave Logo */}
+          <div className="mb-6 flex justify-center">
+            <div className="w-28 h-28 rounded-full overflow-hidden shadow-lg border-2 border-brand-200 bg-white">
+              <img
+                src="/images/CordiWeave1.jpg"
+                alt="CordiWeave Logo"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+          
           <div className="inline-flex items-center gap-3 bg-gradient-to-r from-accent-100 to-brand-100 rounded-lg px-4 py-2 mb-6">
             <Mail className="w-5 h-5 text-accent-600" />
             <span className="text-accent-700 font-medium text-sm">
@@ -245,7 +267,7 @@ export default function LocaleAboutPage({ params }: LocaleAboutPageProps) {
             <div className="group flex items-center gap-3 bg-gradient-to-r from-brand-50 to-brand-100 border border-brand-200 rounded-xl px-6 py-4 hover:shadow-lg transition-all duration-300">
               <Mail className="w-5 h-5 text-brand-600 group-hover:scale-110 transition-transform duration-300" />
               <span className="text-brand-700 font-medium">
-                {params.locale === 'fil' ? 'Email: info@weavers.ph' : 'Email: info@weavers.ph'}
+                {params.locale === 'fil' ? 'Email: info@cordiweave.ph' : 'Email: info@cordiweave.ph'}
               </span>
             </div>
             <div className="group flex items-center gap-3 bg-gradient-to-r from-accent-50 to-accent-100 border border-accent-200 rounded-xl px-6 py-4 hover:shadow-lg transition-all duration-300">

@@ -21,7 +21,7 @@ class ProductSeeder extends Seeder
             $weavers = Weaver::factory(8)->verified()->create();
         }
 
-        // Create diverse test products for comprehensive testing
+        // Create diverse test products for comprehensive testing - CORDILLERA ONLY
         $this->createBasketProducts($weavers);
         $this->createMatProducts($weavers);
         $this->createBagProducts($weavers);
@@ -47,7 +47,7 @@ class ProductSeeder extends Seeder
         // Create affordable products for price range testing
         $this->createAffordableProducts($weavers);
 
-        $this->command->info('✅ Created comprehensive test products for catalog and checkout testing!');
+        $this->command->info('✅ Created comprehensive Cordillera-only test products for catalog and checkout testing!');
     }
 
     private function createBasketProducts($weavers)
@@ -56,14 +56,19 @@ class ProductSeeder extends Seeder
             'Traditional Ifugao Rice Basket',
             'Kalinga Harvest Basket',
             'Bontoc Storage Basket',
-            'Rattan Fruit Basket',
-            'Bamboo Kitchen Basket',
-            'Abaca Market Basket',
-            'Palm Leaf Picnic Basket',
-            'Coiled Storage Basket',
-            'Woven Utility Basket',
-            'Handcrafted Gift Basket'
+            'Igorot Rattan Fruit Basket',
+            'Ibaloi Bamboo Kitchen Basket',
+            'Kankanaey Abaca Market Basket',
+            'Ifugao Palm Leaf Picnic Basket',
+            'Kalinga Coiled Storage Basket',
+            'Bontoc Woven Utility Basket',
+            'Igorot Handcrafted Gift Basket'
         ];
+
+        // ONLY Cordillera tribes
+        $cordilleraTribes = ['Ifugao', 'Kalinga', 'Bontoc', 'Igorot', 'Ibaloi', 'Kankanaey'];
+        // ONLY Cordillera regions
+        $cordilleraRegions = ['Cordillera Administrative Region', 'Benguet', 'Ifugao', 'Kalinga', 'Apayao', 'Mountain Province', 'Abra'];
 
         foreach ($basketNames as $index => $name) {
             $weaver = $weavers->random();
@@ -75,7 +80,8 @@ class ProductSeeder extends Seeder
                     'slug' => \Illuminate\Support\Str::slug($name),
                     'price' => rand(200, 1500),
                     'stock_quantity' => rand(5, 25),
-                    'tribe' => ['Ifugao', 'Kalinga', 'Bontoc', 'Igorot'][rand(0, 3)],
+                    'tribe' => $cordilleraTribes[array_rand($cordilleraTribes)],
+                    'origin_region' => $cordilleraRegions[array_rand($cordilleraRegions)],
                     'rating' => rand(35, 50) / 10,
                     'reviews_count' => rand(5, 30),
                 ])
@@ -86,17 +92,22 @@ class ProductSeeder extends Seeder
     private function createMatProducts($weavers)
     {
         $matNames = [
-            'Traditional Sleeping Mat',
-            'Seagrass Floor Mat',
-            'Tikog Dining Mat',
-            'Palm Leaf Welcome Mat',
-            'Woven Bathroom Mat',
-            'Natural Fiber Doormat',
-            'Handwoven Table Mat',
-            'Eco-friendly Kitchen Mat',
-            'Traditional Prayer Mat',
-            'Decorative Wall Mat'
+            'Traditional Ifugao Sleeping Mat',
+            'Kalinga Seagrass Floor Mat',
+            'Bontoc Tikog Dining Mat',
+            'Igorot Palm Leaf Welcome Mat',
+            'Ibaloi Woven Bathroom Mat',
+            'Kankanaey Natural Fiber Doormat',
+            'Ifugao Handwoven Table Mat',
+            'Kalinga Eco-friendly Kitchen Mat',
+            'Bontoc Traditional Prayer Mat',
+            'Igorot Decorative Wall Mat'
         ];
+
+        // ONLY Cordillera tribes
+        $cordilleraTribes = ['Ifugao', 'Kalinga', 'Bontoc', 'Igorot', 'Ibaloi', 'Kankanaey'];
+        // ONLY Cordillera regions
+        $cordilleraRegions = ['Cordillera Administrative Region', 'Benguet', 'Ifugao', 'Kalinga', 'Apayao', 'Mountain Province', 'Abra'];
 
         foreach ($matNames as $index => $name) {
             $weaver = $weavers->random();
@@ -108,7 +119,8 @@ class ProductSeeder extends Seeder
                     'slug' => \Illuminate\Support\Str::slug($name),
                     'price' => rand(150, 800),
                     'stock_quantity' => rand(3, 20),
-                    'tribe' => ['T\'boli', 'Mangyan', 'Aeta', 'Lumad'][rand(0, 3)],
+                    'tribe' => $cordilleraTribes[array_rand($cordilleraTribes)],
+                    'origin_region' => $cordilleraRegions[array_rand($cordilleraRegions)],
                     'rating' => rand(35, 50) / 10,
                     'reviews_count' => rand(3, 25),
                 ])
@@ -119,17 +131,22 @@ class ProductSeeder extends Seeder
     private function createBagProducts($weavers)
     {
         $bagNames = [
-            'Traditional Shoulder Bag',
-            'Abaca Market Bag',
-            'Banana Fiber Tote',
-            'Coconut Coir Shopping Bag',
-            'Handwoven Crossbody Bag',
-            'Beaded Evening Bag',
-            'Embroidered Clutch',
-            'Natural Fiber Backpack',
-            'Traditional Rice Bag',
-            'Artisan Gift Bag'
+            'Traditional Ifugao Shoulder Bag',
+            'Kalinga Abaca Market Bag',
+            'Bontoc Banana Fiber Tote',
+            'Igorot Coconut Coir Shopping Bag',
+            'Ibaloi Handwoven Crossbody Bag',
+            'Kankanaey Beaded Evening Bag',
+            'Ifugao Embroidered Clutch',
+            'Kalinga Natural Fiber Backpack',
+            'Bontoc Traditional Rice Bag',
+            'Igorot Artisan Gift Bag'
         ];
+
+        // ONLY Cordillera tribes
+        $cordilleraTribes = ['Ifugao', 'Kalinga', 'Bontoc', 'Igorot', 'Ibaloi', 'Kankanaey'];
+        // ONLY Cordillera regions
+        $cordilleraRegions = ['Cordillera Administrative Region', 'Benguet', 'Ifugao', 'Kalinga', 'Apayao', 'Mountain Province', 'Abra'];
 
         foreach ($bagNames as $index => $name) {
             $weaver = $weavers->random();
@@ -141,7 +158,8 @@ class ProductSeeder extends Seeder
                     'slug' => \Illuminate\Support\Str::slug($name),
                     'price' => rand(300, 2000),
                     'stock_quantity' => rand(2, 15),
-                    'tribe' => ['Badjao', 'Yakan', 'T\'boli', 'Mangyan'][rand(0, 3)],
+                    'tribe' => $cordilleraTribes[array_rand($cordilleraTribes)],
+                    'origin_region' => $cordilleraRegions[array_rand($cordilleraRegions)],
                     'rating' => rand(40, 50) / 10,
                     'reviews_count' => rand(5, 35),
                 ])
@@ -152,17 +170,22 @@ class ProductSeeder extends Seeder
     private function createHatProducts($weavers)
     {
         $hatNames = [
-            'Traditional Bamboo Hat',
-            'Palm Leaf Sun Hat',
-            'Rattan Garden Hat',
-            'Woven Beach Hat',
-            'Handcrafted Festival Hat',
-            'Natural Fiber Cap',
-            'Traditional Farmer Hat',
-            'Artisan Summer Hat',
-            'Bamboo Rain Hat',
-            'Palm Leaf Party Hat'
+            'Traditional Ifugao Bamboo Hat',
+            'Kalinga Palm Leaf Sun Hat',
+            'Bontoc Rattan Garden Hat',
+            'Igorot Woven Beach Hat',
+            'Ibaloi Handcrafted Festival Hat',
+            'Kankanaey Natural Fiber Cap',
+            'Ifugao Traditional Farmer Hat',
+            'Kalinga Artisan Summer Hat',
+            'Bontoc Bamboo Rain Hat',
+            'Igorot Palm Leaf Party Hat'
         ];
+
+        // ONLY Cordillera tribes
+        $cordilleraTribes = ['Ifugao', 'Kalinga', 'Bontoc', 'Igorot', 'Ibaloi', 'Kankanaey'];
+        // ONLY Cordillera regions
+        $cordilleraRegions = ['Cordillera Administrative Region', 'Benguet', 'Ifugao', 'Kalinga', 'Apayao', 'Mountain Province', 'Abra'];
 
         foreach ($hatNames as $index => $name) {
             $weaver = $weavers->random();
@@ -174,7 +197,8 @@ class ProductSeeder extends Seeder
                     'slug' => \Illuminate\Support\Str::slug($name),
                     'price' => rand(100, 500),
                     'stock_quantity' => rand(8, 30),
-                    'tribe' => ['Ifugao', 'Kalinga', 'Bontoc', 'Igorot'][rand(0, 3)],
+                    'tribe' => $cordilleraTribes[array_rand($cordilleraTribes)],
+                    'origin_region' => $cordilleraRegions[array_rand($cordilleraRegions)],
                     'rating' => rand(35, 50) / 10,
                     'reviews_count' => rand(2, 20),
                 ])
@@ -185,17 +209,22 @@ class ProductSeeder extends Seeder
     private function createDecorativeProducts($weavers)
     {
         $decorativeNames = [
-            'Traditional Wall Hanging',
-            'Handwoven Dream Catcher',
-            'Bamboo Wind Chime',
-            'Rattan Wall Art',
-            'Abaca Decorative Bowl',
-            'Palm Leaf Wall Panel',
-            'Handcrafted Mobile',
-            'Natural Fiber Garland',
-            'Traditional Mask',
-            'Artisan Wall Clock'
+            'Traditional Ifugao Wall Hanging',
+            'Kalinga Handwoven Dream Catcher',
+            'Bontoc Bamboo Wind Chime',
+            'Igorot Rattan Wall Art',
+            'Ibaloi Abaca Decorative Bowl',
+            'Kankanaey Palm Leaf Wall Panel',
+            'Ifugao Handcrafted Mobile',
+            'Kalinga Natural Fiber Garland',
+            'Bontoc Traditional Mask',
+            'Igorot Artisan Wall Clock'
         ];
+
+        // ONLY Cordillera tribes
+        $cordilleraTribes = ['Ifugao', 'Kalinga', 'Bontoc', 'Igorot', 'Ibaloi', 'Kankanaey'];
+        // ONLY Cordillera regions
+        $cordilleraRegions = ['Cordillera Administrative Region', 'Benguet', 'Ifugao', 'Kalinga', 'Apayao', 'Mountain Province', 'Abra'];
 
         foreach ($decorativeNames as $index => $name) {
             $weaver = $weavers->random();
@@ -207,6 +236,8 @@ class ProductSeeder extends Seeder
                     'category' => 'Decorative Items',
                     'price' => rand(250, 1200),
                     'stock_quantity' => rand(3, 18),
+                    'tribe' => $cordilleraTribes[array_rand($cordilleraTribes)],
+                    'origin_region' => $cordilleraRegions[array_rand($cordilleraRegions)],
                     'technique' => ['Beading', 'Embroidery', 'Carving', 'Dyeing'][rand(0, 3)],
                     'rating' => rand(40, 50) / 10,
                     'reviews_count' => rand(4, 28),
@@ -218,17 +249,22 @@ class ProductSeeder extends Seeder
     private function createFurnitureProducts($weavers)
     {
         $furnitureNames = [
-            'Bamboo Side Table',
-            'Rattan Armchair',
-            'Abaca Stool',
-            'Palm Leaf Bench',
-            'Handwoven Cushion',
-            'Natural Fiber Ottoman',
-            'Traditional Floor Cushion',
-            'Bamboo Shelf Unit',
-            'Rattan Magazine Rack',
-            'Handcrafted Footstool'
+            'Ifugao Bamboo Side Table',
+            'Kalinga Rattan Armchair',
+            'Bontoc Abaca Stool',
+            'Igorot Palm Leaf Bench',
+            'Ibaloi Handwoven Cushion',
+            'Kankanaey Natural Fiber Ottoman',
+            'Ifugao Traditional Floor Cushion',
+            'Kalinga Bamboo Shelf Unit',
+            'Bontoc Rattan Magazine Rack',
+            'Igorot Handcrafted Footstool'
         ];
+
+        // ONLY Cordillera tribes
+        $cordilleraTribes = ['Ifugao', 'Kalinga', 'Bontoc', 'Igorot', 'Ibaloi', 'Kankanaey'];
+        // ONLY Cordillera regions
+        $cordilleraRegions = ['Cordillera Administrative Region', 'Benguet', 'Ifugao', 'Kalinga', 'Apayao', 'Mountain Province', 'Abra'];
 
         foreach ($furnitureNames as $index => $name) {
             $weaver = $weavers->random();
@@ -240,6 +276,8 @@ class ProductSeeder extends Seeder
                     'category' => 'Furniture',
                     'price' => rand(800, 3500),
                     'stock_quantity' => rand(1, 8),
+                    'tribe' => $cordilleraTribes[array_rand($cordilleraTribes)],
+                    'origin_region' => $cordilleraRegions[array_rand($cordilleraRegions)],
                     'technique' => ['Weaving', 'Carving', 'Sewing'][rand(0, 2)],
                     'rating' => rand(40, 50) / 10,
                     'reviews_count' => rand(6, 32),
@@ -251,17 +289,22 @@ class ProductSeeder extends Seeder
     private function createTextileProducts($weavers)
     {
         $textileNames = [
-            'Traditional Weaving',
-            'Handwoven Table Runner',
-            'Abaca Placemat Set',
-            'Bamboo Fiber Towel',
-            'Natural Fiber Napkins',
-            'Handcrafted Coaster Set',
-            'Traditional Textile Panel',
-            'Woven Wall Hanging',
-            'Artisan Fabric Swatch',
-            'Handmade Textile Art'
+            'Traditional Ifugao Weaving',
+            'Kalinga Handwoven Table Runner',
+            'Bontoc Abaca Placemat Set',
+            'Igorot Bamboo Fiber Towel',
+            'Ibaloi Natural Fiber Napkins',
+            'Kankanaey Handcrafted Coaster Set',
+            'Ifugao Traditional Textile Panel',
+            'Kalinga Woven Wall Hanging',
+            'Bontoc Artisan Fabric Swatch',
+            'Igorot Handmade Textile Art'
         ];
+
+        // ONLY Cordillera tribes
+        $cordilleraTribes = ['Ifugao', 'Kalinga', 'Bontoc', 'Igorot', 'Ibaloi', 'Kankanaey'];
+        // ONLY Cordillera regions
+        $cordilleraRegions = ['Cordillera Administrative Region', 'Benguet', 'Ifugao', 'Kalinga', 'Apayao', 'Mountain Province', 'Abra'];
 
         foreach ($textileNames as $index => $name) {
             $weaver = $weavers->random();
@@ -273,7 +316,10 @@ class ProductSeeder extends Seeder
                     'category' => 'Textiles',
                     'price' => rand(180, 900),
                     'stock_quantity' => rand(4, 22),
+                    'tribe' => $cordilleraTribes[array_rand($cordilleraTribes)],
                     'technique' => ['Weaving', 'Embroidery', 'Dyeing'][rand(0, 2)],
+                    'tribe' => $cordilleraTribes[array_rand($cordilleraTribes)],
+                    'origin_region' => $cordilleraRegions[array_rand($cordilleraRegions)],
                     'rating' => rand(35, 50) / 10,
                     'reviews_count' => rand(3, 26),
                 ])
@@ -284,17 +330,22 @@ class ProductSeeder extends Seeder
     private function createAccessoryProducts($weavers)
     {
         $accessoryNames = [
-            'Bamboo Jewelry Box',
-            'Rattan Keychain',
-            'Abaca Wallet',
-            'Palm Leaf Belt',
-            'Handwoven Bracelet',
-            'Natural Fiber Necklace',
-            'Traditional Hair Accessory',
-            'Artisan Sunglasses Case',
-            'Handcrafted Watch Band',
-            'Bamboo Phone Holder'
+            'Ifugao Bamboo Jewelry Box',
+            'Kalinga Rattan Keychain',
+            'Bontoc Abaca Wallet',
+            'Igorot Palm Leaf Belt',
+            'Ibaloi Handwoven Bracelet',
+            'Kankanaey Natural Fiber Necklace',
+            'Ifugao Traditional Hair Accessory',
+            'Kalinga Artisan Sunglasses Case',
+            'Bontoc Handcrafted Watch Band',
+            'Igorot Bamboo Phone Holder'
         ];
+
+        // ONLY Cordillera tribes
+        $cordilleraTribes = ['Ifugao', 'Kalinga', 'Bontoc', 'Igorot', 'Ibaloi', 'Kankanaey'];
+        // ONLY Cordillera regions
+        $cordilleraRegions = ['Cordillera Administrative Region', 'Benguet', 'Ifugao', 'Kalinga', 'Apayao', 'Mountain Province', 'Abra'];
 
         foreach ($accessoryNames as $index => $name) {
             $weaver = $weavers->random();
@@ -306,6 +357,8 @@ class ProductSeeder extends Seeder
                     'category' => 'Accessories',
                     'price' => rand(120, 600),
                     'stock_quantity' => rand(6, 25),
+                    'tribe' => $cordilleraTribes[array_rand($cordilleraTribes)],
+                    'origin_region' => $cordilleraRegions[array_rand($cordilleraRegions)],
                     'technique' => ['Beading', 'Sewing', 'Wrapping'][rand(0, 2)],
                     'rating' => rand(35, 50) / 10,
                     'reviews_count' => rand(2, 24),
@@ -317,17 +370,22 @@ class ProductSeeder extends Seeder
     private function createHomeDecorProducts($weavers)
     {
         $homeDecorNames = [
-            'Bamboo Vase',
-            'Rattan Lamp Shade',
-            'Abaca Plant Holder',
-            'Palm Leaf Mirror Frame',
-            'Handwoven Throw Pillow',
-            'Natural Fiber Rug',
-            'Traditional Candle Holder',
-            'Artisan Photo Frame',
-            'Handcrafted Bookend',
-            'Bamboo Tissue Box Cover'
+            'Ifugao Bamboo Vase',
+            'Kalinga Rattan Lamp Shade',
+            'Bontoc Abaca Plant Holder',
+            'Igorot Palm Leaf Mirror Frame',
+            'Ibaloi Handwoven Throw Pillow',
+            'Kankanaey Natural Fiber Rug',
+            'Ifugao Traditional Candle Holder',
+            'Kalinga Artisan Photo Frame',
+            'Bontoc Handcrafted Bookend',
+            'Igorot Bamboo Tissue Box Cover'
         ];
+
+        // ONLY Cordillera tribes
+        $cordilleraTribes = ['Ifugao', 'Kalinga', 'Bontoc', 'Igorot', 'Ibaloi', 'Kankanaey'];
+        // ONLY Cordillera regions
+        $cordilleraRegions = ['Cordillera Administrative Region', 'Benguet', 'Ifugao', 'Kalinga', 'Apayao', 'Mountain Province', 'Abra'];
 
         foreach ($homeDecorNames as $index => $name) {
             $weaver = $weavers->random();
@@ -339,6 +397,8 @@ class ProductSeeder extends Seeder
                     'category' => 'Home Decor',
                     'price' => rand(200, 1000),
                     'stock_quantity' => rand(3, 20),
+                    'tribe' => $cordilleraTribes[array_rand($cordilleraTribes)],
+                    'origin_region' => $cordilleraRegions[array_rand($cordilleraRegions)],
                     'technique' => ['Weaving', 'Carving', 'Sewing'][rand(0, 2)],
                     'rating' => rand(35, 50) / 10,
                     'reviews_count' => rand(4, 30),
@@ -353,14 +413,19 @@ class ProductSeeder extends Seeder
             'Premium Ifugao Rice Basket',
             'Luxury Kalinga Harvest Basket',
             'Exclusive Bontoc Storage Basket',
-            'Artisan Rattan Fruit Basket',
-            'Signature Bamboo Kitchen Basket',
-            'Premium Abaca Market Basket',
-            'Luxury Palm Leaf Picnic Basket',
-            'Exclusive Coiled Storage Basket',
-            'Artisan Woven Utility Basket',
-            'Signature Handcrafted Gift Basket'
+            'Artisan Igorot Rattan Fruit Basket',
+            'Signature Ibaloi Bamboo Kitchen Basket',
+            'Premium Kankanaey Abaca Market Basket',
+            'Luxury Ifugao Palm Leaf Picnic Basket',
+            'Exclusive Kalinga Coiled Storage Basket',
+            'Artisan Bontoc Woven Utility Basket',
+            'Signature Igorot Handcrafted Gift Basket'
         ];
+
+        // ONLY Cordillera tribes
+        $cordilleraTribes = ['Ifugao', 'Kalinga', 'Bontoc', 'Igorot', 'Ibaloi', 'Kankanaey'];
+        // ONLY Cordillera regions
+        $cordilleraRegions = ['Cordillera Administrative Region', 'Benguet', 'Ifugao', 'Kalinga', 'Apayao', 'Mountain Province', 'Abra'];
 
         foreach ($featuredNames as $index => $name) {
             $weaver = $weavers->random();
@@ -372,6 +437,8 @@ class ProductSeeder extends Seeder
                     'slug' => \Illuminate\Support\Str::slug($name),
                     'price' => rand(500, 3000),
                     'stock_quantity' => rand(2, 10),
+                    'tribe' => $cordilleraTribes[array_rand($cordilleraTribes)],
+                    'origin_region' => $cordilleraRegions[array_rand($cordilleraRegions)],
                     'rating' => rand(45, 50) / 10,
                     'reviews_count' => rand(15, 50),
                 ])
@@ -382,17 +449,22 @@ class ProductSeeder extends Seeder
     private function createOutOfStockProducts($weavers)
     {
         $outOfStockNames = [
-            'Rare Traditional Basket',
-            'Limited Edition Mat',
-            'Exclusive Handbag',
-            'Collector Hat',
-            'Vintage Decorative Item',
-            'Antique Furniture Piece',
-            'Heritage Textile',
-            'Rare Accessory',
-            'Limited Home Decor',
-            'Exclusive Artisan Piece'
+            'Rare Ifugao Traditional Basket',
+            'Limited Edition Kalinga Mat',
+            'Exclusive Bontoc Handbag',
+            'Collector Igorot Hat',
+            'Vintage Ibaloi Decorative Item',
+            'Antique Kankanaey Furniture Piece',
+            'Heritage Ifugao Textile',
+            'Rare Kalinga Accessory',
+            'Limited Bontoc Home Decor',
+            'Exclusive Igorot Artisan Piece'
         ];
+
+        // ONLY Cordillera tribes
+        $cordilleraTribes = ['Ifugao', 'Kalinga', 'Bontoc', 'Igorot', 'Ibaloi', 'Kankanaey'];
+        // ONLY Cordillera regions
+        $cordilleraRegions = ['Cordillera Administrative Region', 'Benguet', 'Ifugao', 'Kalinga', 'Apayao', 'Mountain Province', 'Abra'];
 
         foreach ($outOfStockNames as $index => $name) {
             $weaver = $weavers->random();
@@ -403,6 +475,8 @@ class ProductSeeder extends Seeder
                     'name' => $name,
                     'slug' => \Illuminate\Support\Str::slug($name),
                     'price' => rand(300, 2000),
+                    'tribe' => $cordilleraTribes[array_rand($cordilleraTribes)],
+                    'origin_region' => $cordilleraRegions[array_rand($cordilleraRegions)],
                     'rating' => rand(40, 50) / 10,
                     'reviews_count' => rand(5, 25),
                 ])
@@ -413,17 +487,22 @@ class ProductSeeder extends Seeder
     private function createLowStockProducts($weavers)
     {
         $lowStockNames = [
-            'Popular Traditional Basket',
-            'Trending Handwoven Mat',
-            'Best-selling Bag',
-            'Fashionable Hat',
-            'Popular Decorative Item',
-            'Trending Furniture',
-            'Best-selling Textile',
-            'Popular Accessory',
-            'Trending Home Decor',
-            'Fashionable Artisan Piece'
+            'Popular Ifugao Traditional Basket',
+            'Trending Kalinga Handwoven Mat',
+            'Best-selling Bontoc Bag',
+            'Fashionable Igorot Hat',
+            'Popular Ibaloi Decorative Item',
+            'Trending Kankanaey Furniture',
+            'Best-selling Ifugao Textile',
+            'Popular Kalinga Accessory',
+            'Trending Bontoc Home Decor',
+            'Fashionable Igorot Artisan Piece'
         ];
+
+        // ONLY Cordillera tribes
+        $cordilleraTribes = ['Ifugao', 'Kalinga', 'Bontoc', 'Igorot', 'Ibaloi', 'Kankanaey'];
+        // ONLY Cordillera regions
+        $cordilleraRegions = ['Cordillera Administrative Region', 'Benguet', 'Ifugao', 'Kalinga', 'Apayao', 'Mountain Province', 'Abra'];
 
         foreach ($lowStockNames as $index => $name) {
             $weaver = $weavers->random();
@@ -434,6 +513,8 @@ class ProductSeeder extends Seeder
                     'slug' => \Illuminate\Support\Str::slug($name),
                     'price' => rand(200, 1500),
                     'stock_quantity' => rand(1, 5), // Low stock
+                    'tribe' => $cordilleraTribes[array_rand($cordilleraTribes)],
+                    'origin_region' => $cordilleraRegions[array_rand($cordilleraRegions)],
                     'rating' => rand(40, 50) / 10,
                     'reviews_count' => rand(8, 35),
                 ])
@@ -444,17 +525,22 @@ class ProductSeeder extends Seeder
     private function createExpensiveProducts($weavers)
     {
         $expensiveNames = [
-            'Luxury Traditional Basket',
-            'Premium Artisan Mat',
-            'Exclusive Designer Bag',
-            'High-end Fashion Hat',
-            'Luxury Decorative Piece',
-            'Premium Furniture Item',
-            'Exclusive Textile Art',
-            'Luxury Accessory',
-            'Premium Home Decor',
-            'High-end Artisan Creation'
+            'Luxury Ifugao Traditional Basket',
+            'Premium Kalinga Artisan Mat',
+            'Exclusive Bontoc Designer Bag',
+            'High-end Igorot Fashion Hat',
+            'Luxury Ibaloi Decorative Piece',
+            'Premium Kankanaey Furniture Item',
+            'Exclusive Ifugao Textile Art',
+            'Luxury Kalinga Accessory',
+            'Premium Bontoc Home Decor',
+            'High-end Igorot Artisan Creation'
         ];
+
+        // ONLY Cordillera tribes
+        $cordilleraTribes = ['Ifugao', 'Kalinga', 'Bontoc', 'Igorot', 'Ibaloi', 'Kankanaey'];
+        // ONLY Cordillera regions
+        $cordilleraRegions = ['Cordillera Administrative Region', 'Benguet', 'Ifugao', 'Kalinga', 'Apayao', 'Mountain Province', 'Abra'];
 
         foreach ($expensiveNames as $index => $name) {
             $weaver = $weavers->random();
@@ -465,6 +551,8 @@ class ProductSeeder extends Seeder
                     'slug' => \Illuminate\Support\Str::slug($name),
                     'price' => rand(2000, 8000), // Expensive range
                     'stock_quantity' => rand(1, 8),
+                    'tribe' => $cordilleraTribes[array_rand($cordilleraTribes)],
+                    'origin_region' => $cordilleraRegions[array_rand($cordilleraRegions)],
                     'rating' => rand(45, 50) / 10,
                     'reviews_count' => rand(10, 40),
                 ])
@@ -475,17 +563,22 @@ class ProductSeeder extends Seeder
     private function createAffordableProducts($weavers)
     {
         $affordableNames = [
-            'Budget Traditional Basket',
-            'Affordable Handwoven Mat',
-            'Economy Bag',
-            'Budget-friendly Hat',
-            'Affordable Decorative Item',
-            'Economy Furniture',
-            'Budget Textile',
-            'Affordable Accessory',
-            'Economy Home Decor',
-            'Budget Artisan Piece'
+            'Budget Ifugao Traditional Basket',
+            'Affordable Kalinga Handwoven Mat',
+            'Economy Bontoc Bag',
+            'Budget-friendly Igorot Hat',
+            'Affordable Ibaloi Decorative Item',
+            'Economy Kankanaey Furniture',
+            'Budget Ifugao Textile',
+            'Affordable Kalinga Accessory',
+            'Economy Bontoc Home Decor',
+            'Budget Igorot Artisan Piece'
         ];
+
+        // ONLY Cordillera tribes
+        $cordilleraTribes = ['Ifugao', 'Kalinga', 'Bontoc', 'Igorot', 'Ibaloi', 'Kankanaey'];
+        // ONLY Cordillera regions
+        $cordilleraRegions = ['Cordillera Administrative Region', 'Benguet', 'Ifugao', 'Kalinga', 'Apayao', 'Mountain Province', 'Abra'];
 
         foreach ($affordableNames as $index => $name) {
             $weaver = $weavers->random();
@@ -496,6 +589,8 @@ class ProductSeeder extends Seeder
                     'slug' => \Illuminate\Support\Str::slug($name),
                     'price' => rand(50, 300), // Affordable range
                     'stock_quantity' => rand(10, 40),
+                    'tribe' => $cordilleraTribes[array_rand($cordilleraTribes)],
+                    'origin_region' => $cordilleraRegions[array_rand($cordilleraRegions)],
                     'rating' => rand(35, 50) / 10,
                     'reviews_count' => rand(2, 20),
                 ])

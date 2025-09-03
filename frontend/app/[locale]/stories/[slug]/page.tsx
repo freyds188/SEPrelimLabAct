@@ -383,11 +383,15 @@ export default function LocaleStoryPage({ params }: LocaleStoryPageProps) {
 
         {/* Story Content */}
         <div className="prose prose-lg max-w-none mb-8">
-          {story.blocks && story.blocks.length > 0 ? (
-            renderBlocks(story.blocks)
-          ) : (
-            <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-              {story.content}
+          {/* Display the full story content */}
+          <div className="text-gray-700 leading-relaxed whitespace-pre-wrap mb-8">
+            {story.content}
+          </div>
+          
+          {/* Also display blocks if they exist for additional formatting */}
+          {story.blocks && story.blocks.length > 0 && (
+            <div className="mt-8">
+              {renderBlocks(story.blocks)}
             </div>
           )}
         </div>

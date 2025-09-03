@@ -7,8 +7,8 @@ import { CartProvider } from '@/lib/cart-context'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Weavers - Traditional Filipino Weaving',
-  description: 'Discover the art of traditional Filipino weaving and support local artisans.',
+  title: 'CordiWeave - Traditional Filipino Weaving Platform',
+  description: 'Discover the art of traditional Filipino weaving and support local Cordillera artisans through CordiWeave.',
 }
 
 export default function RootLayout({

@@ -35,12 +35,15 @@ export function Navbar() {
         <div className="flex justify-between h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <Link 
-              href={getLocalizedPathname("/", locale)} 
-              className="flex-shrink-0 flex items-center"
-              aria-label="Weavers - Home"
-            >
-              <span className="text-xl font-bold text-brand-600">Weavers</span>
+            <Link href={getLocalizedPathname("/", locale)} className="flex items-center gap-2" aria-label="CordiWeave - Home">
+              <div className="w-8 h-8 rounded-lg overflow-hidden">
+                              <img 
+                src="/images/CordiWeave1.jpg" 
+                alt="CordiWeave Logo" 
+                className="w-full h-full object-cover"
+              />
+              </div>
+              <span className="text-xl font-bold text-brand-600">CordiWeave</span>
             </Link>
           </div>
           

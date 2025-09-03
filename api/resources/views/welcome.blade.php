@@ -68,7 +68,7 @@
     </head>
     <body>
         <div class="container">
-            <h1 class="title">SELabActPrelim API</h1>
+            <h1 class="title">CordiWeave API</h1>
             <p class="subtitle">Laravel 11 API Backend</p>
             
             <div class="links">
@@ -86,6 +86,9 @@
         </div>
     </body>
 </html>
+
+
+
 
 
 

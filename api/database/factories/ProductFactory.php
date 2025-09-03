@@ -23,9 +23,9 @@ class ProductFactory extends Factory
             'Furniture', 'Textiles', 'Accessories', 'Home Decor'
         ];
 
+        // ONLY Cordillera tribes
         $tribes = [
-            'Ifugao', 'Kalinga', 'Bontoc', 'Igorot', 'T\'boli', 
-            'Mangyan', 'Aeta', 'Lumad', 'Badjao', 'Yakan'
+            'Ifugao', 'Kalinga', 'Bontoc', 'Igorot', 'Ibaloi', 'Kankanaey'
         ];
 
         $techniques = [
@@ -44,10 +44,10 @@ class ProductFactory extends Factory
             'Sunset Pink', 'Sage Green'
         ];
 
+        // ONLY Cordillera regions
         $originRegions = [
-            'Cordillera Administrative Region', 'Mindanao', 'Visayas',
-            'Luzon', 'Palawan', 'Bicol Region', 'Ilocos Region',
-            'Central Luzon', 'Southern Tagalog', 'Eastern Visayas'
+            'Cordillera Administrative Region',
+            'Benguet', 'Ifugao', 'Kalinga', 'Apayao', 'Mountain Province', 'Abra'
         ];
 
         $careInstructions = [
@@ -80,7 +80,7 @@ class ProductFactory extends Factory
             'weight_grams' => $weight,
             'origin_region' => fake()->randomElement($originRegions),
             'is_handmade' => true,
-            'tags' => fake()->randomElements(['handmade', 'traditional', 'sustainable', 'artisan', 'local', 'eco-friendly', 'cultural', 'heritage', 'craftsmanship'], fake()->numberBetween(2, 5)),
+            'tags' => fake()->randomElements(['handmade', 'traditional', 'sustainable', 'artisan', 'local', 'eco-friendly', 'cultural', 'heritage', 'craftsmanship', 'cordillera', 'filipino'], fake()->numberBetween(3, 6)),
             'images' => [
                 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
                 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',

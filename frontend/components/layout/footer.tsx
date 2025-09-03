@@ -14,9 +14,9 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Weavers</h3>
-            <p className="text-muted-foreground mb-4">
-              {t.footer.description}
+            <h3 className="text-lg font-semibold text-foreground mb-4">CordiWeave</h3>
+            <p className="text-neutral-600 mb-4">
+              Preserving and promoting traditional Filipino weaving traditions, with a focus on Cordillera weaving communities.
             </p>
             <div className="flex space-x-4">
                                <Link href={getLocalizedPathname("/donate", locale)} className="text-brand-600 hover:text-brand-700">

@@ -1,47 +1,13 @@
-# SELabActPrelim - Traditional Filipino Weaving Platform
+# CordiWeave - Traditional Filipino Weaving Platform
 
-A full-stack web application showcasing traditional Filipino weaving with a Next.js frontend and Laravel backend.
+A comprehensive web platform dedicated to preserving and promoting traditional Filipino weaving traditions, with a focus on Cordillera weaving communities.
 
-## 🏗️ Project Structure
+## Quick Start
 
-```
-SELabActPrelim/
-├── frontend/          # Next.js 14 App Router
-├── api/              # Laravel 9 Backend
-├── package.json      # Root scripts for both apps
-├── artisan.ps1       # PowerShell wrapper for artisan commands
-├── artisan.bat       # Windows batch wrapper for artisan commands
-└── .gitignore        # Comprehensive ignore rules
-```
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js 18+ and npm
-- PHP 8.0+ and Composer
-- Git
-
-### Installation
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd SELabActPrelim
-
-# Install all dependencies (frontend + backend)
-npm run install:all
-
-# Set up the database and seed data
-npm run setup
-```
-
-### Development
-```bash
-# Start both frontend and backend together
-npm run dev
-
-# Or start them individually:
-npm run frontend    # Next.js on http://localhost:3000
-npm run backend     # Laravel on http://127.0.0.1:8000
+cd CordiWeave
 ```
 
 ## 📋 Available Scripts
