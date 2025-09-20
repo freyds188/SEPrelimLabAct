@@ -20,6 +20,8 @@ import {
   Upload
 } from 'lucide-react';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/v1';
+
 interface Product {
   id: number;
   name: string;
@@ -52,6 +54,9 @@ export default function AdminProducts() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
+  const [approvedCount, setApprovedCount] = useState(0);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [outOfStockCount, setOutOfStockCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
@@ -69,6 +74,10 @@ export default function AdminProducts() {
     fetchProducts();
   }, [currentPage, searchTerm, statusFilter, categoryFilter, weaverFilter, minPrice, maxPrice, sortBy, sortOrder]);
 
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -85,7 +94,7 @@ export default function AdminProducts() {
         per_page: '15',
       });
 
-      const response = await fetch(`/api/v1/admin/products?${params}`, {
+      const response = await fetch(`${API_BASE_URL}/admin/products?${params}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
           'Content-Type': 'application/json',
@@ -93,10 +102,37 @@ export default function AdminProducts() {
       });
 
       if (response.ok) {
-        const data: ProductsResponse = await response.json();
-        setProducts(data.data);
-        setTotalPages(data.last_page);
-        setTotalProducts(data.total);
+        const json = await response.json();
+        const payload = json?.data; // Laravel wraps paginator in data
+        const items = Array.isArray(payload?.data) ? payload.data : Array.isArray(json?.data) ? json.data : [];
+
+        if ((items || []).length > 0) {
+          setProducts(items);
+          setTotalPages(payload?.last_page ?? 1);
+          setTotalProducts(payload?.total ?? (items?.length || 0));
+        } else {
+          // Fallback to public products to at least display items visible in shop
+          const publicParams = new URLSearchParams({
+            page: currentPage.toString(),
+            per_page: '15',
+            sort_by: sortBy,
+            sort_order: sortOrder,
+            ...(searchTerm && { search: searchTerm }),
+            ...(categoryFilter && { category: categoryFilter }),
+            ...(minPrice && { min_price: minPrice }),
+            ...(maxPrice && { max_price: maxPrice }),
+          });
+          const pubRes = await fetch(`${API_BASE_URL}/products?${publicParams}`);
+          if (pubRes.ok) {
+            const pubJson = await pubRes.json();
+            const pubItems = Array.isArray(pubJson?.data) ? pubJson.data : [];
+            setProducts(pubItems);
+            setTotalPages(pubJson?.meta?.last_page ?? 1);
+            setTotalProducts(pubJson?.meta?.total ?? (pubItems?.length || 0));
+          } else {
+            setProducts([]);
+          }
+        }
       } else {
         setError('Failed to fetch products');
       }
@@ -105,6 +141,27 @@ export default function AdminProducts() {
       setError('Failed to fetch products');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/products/stats`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (res.ok) {
+        const json = await res.json();
+        const s = json?.data || {};
+        setTotalProducts(s.total_products ?? totalProducts);
+        setApprovedCount(s.approved_products ?? 0);
+        setPendingCount(s.pending_approval ?? 0);
+        setOutOfStockCount(s.out_of_stock ?? 0);
+      }
+    } catch (e) {
+      // ignore stats errors
     }
   };
 
@@ -146,7 +203,7 @@ export default function AdminProducts() {
 
   const handleProductAction = async (productId: number, action: string, data?: any) => {
     try {
-      const response = await fetch(`/api/v1/admin/products/${productId}/${action}`, {
+      const response = await fetch(`${API_BASE_URL}/admin/products/${productId}/${action}`, {
         method: action === 'delete' ? 'DELETE' : 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
@@ -199,7 +256,7 @@ export default function AdminProducts() {
       const formData = new FormData();
       formData.append('file', bulkUploadFile);
 
-      const response = await fetch('/api/v1/admin/products/bulk-upload', {
+      const response = await fetch(`${API_BASE_URL}/admin/products/bulk-upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
@@ -314,21 +371,15 @@ export default function AdminProducts() {
           <div className="text-sm text-gray-500">Total Products</div>
         </div>
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <div className="text-2xl font-bold text-green-600">
-            {products.filter(p => p.status === 'approved').length}
-          </div>
+          <div className="text-2xl font-bold text-green-600">{approvedCount}</div>
           <div className="text-sm text-gray-500">Approved Products</div>
         </div>
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <div className="text-2xl font-bold text-yellow-600">
-            {products.filter(p => p.status === 'pending').length}
-          </div>
+          <div className="text-2xl font-bold text-yellow-600">{pendingCount}</div>
           <div className="text-sm text-gray-500">Pending Approval</div>
         </div>
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <div className="text-2xl font-bold text-red-600">
-            {products.filter(p => p.stock_quantity === 0).length}
-          </div>
+          <div className="text-2xl font-bold text-red-600">{outOfStockCount}</div>
           <div className="text-sm text-gray-500">Out of Stock</div>
         </div>
       </div>

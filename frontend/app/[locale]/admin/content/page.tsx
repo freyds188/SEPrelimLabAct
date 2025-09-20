@@ -17,6 +17,8 @@ import {
   RefreshCw
 } from 'lucide-react';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/v1';
+
 interface ContentItem {
   id: number;
   title: string;
@@ -25,6 +27,8 @@ interface ContentItem {
   content_type: 'story' | 'campaign';
   submitted_by: string;
   created_at: string;
+  featured_image?: string;
+  image?: string;
 }
 
 export default function AdminContent() {
@@ -48,26 +52,79 @@ export default function AdminContent() {
       });
 
       if (activeTab === 'stories') {
-        const response = await fetch(`/api/v1/admin/content/stories?${params}`, {
+        const response = await fetch(`${API_BASE_URL}/admin/moderation/stories?${params}`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
             'Content-Type': 'application/json',
           },
         });
         if (response.ok) {
-          const data = await response.json();
-          setStories(data.data || []);
+          const json = await response.json();
+          const payload = json?.data;
+          const items = Array.isArray(payload?.data) ? payload.data : (payload || []);
+          if ((items || []).length > 0) {
+            setStories(items);
+          } else {
+            // Fallback to public published stories so admin sees what the site shows
+            const pubParams = new URLSearchParams({
+              per_page: '15',
+              ...(searchTerm && { search: searchTerm }),
+            });
+            const pubRes = await fetch(`${API_BASE_URL}/stories?${pubParams}`);
+            if (pubRes.ok) {
+              const pubJson = await pubRes.json();
+              const pubItems = Array.isArray(pubJson?.data) ? pubJson.data : [];
+              const mapped = pubItems.map((s: any) => ({
+                id: s.id,
+                title: s.title,
+                content: s.content,
+                status: s.status || (s.is_published ? 'published' : 'draft'),
+                content_type: 'story' as const,
+                submitted_by: s.weaver?.name || 'CordiWeave',
+                created_at: s.created_at,
+                featured_image: s.featured_image || s.image_urls?.[0],
+              }));
+              setStories(mapped);
+            } else {
+              setStories([]);
+            }
+          }
         }
       } else {
-        const response = await fetch(`/api/v1/admin/content/campaigns?${params}`, {
+        const response = await fetch(`${API_BASE_URL}/admin/moderation/campaigns?${params}`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
             'Content-Type': 'application/json',
           },
         });
         if (response.ok) {
-          const data = await response.json();
-          setCampaigns(data.data || []);
+          const json = await response.json();
+          const payload = json?.data;
+          const items = Array.isArray(payload?.data) ? payload.data : (payload || []);
+          if ((items || []).length > 0) {
+            setCampaigns(items);
+          } else {
+            // Fallback to public active campaigns
+            const pubParams = new URLSearchParams({ per_page: '15' });
+            const pubRes = await fetch(`${API_BASE_URL}/campaigns?${pubParams}`);
+            if (pubRes.ok) {
+              const pubJson = await pubRes.json();
+              const pubItems = Array.isArray(pubJson?.data) ? pubJson.data : [];
+              const mapped = pubItems.map((c: any) => ({
+                id: c.id,
+                title: c.title,
+                content: c.description,
+                status: c.status || (c.is_active ? 'active' : 'inactive'),
+                content_type: 'campaign' as const,
+                submitted_by: c.organizer || 'CordiWeave',
+                created_at: c.created_at,
+                image: c.image || c.cover_image,
+              }));
+              setCampaigns(mapped);
+            } else {
+              setCampaigns([]);
+            }
+          }
         }
       }
     } catch (error) {
@@ -79,9 +136,9 @@ export default function AdminContent() {
 
   const handleContentAction = async (contentId: number, action: string) => {
     try {
-      const endpoint = activeTab === 'stories' 
-        ? `/api/v1/admin/content/stories/${contentId}/${action}`
-        : `/api/v1/admin/content/campaigns/${contentId}/${action}`;
+    const endpoint = activeTab === 'stories' 
+      ? `${API_BASE_URL}/admin/moderation/stories/${contentId}/${action}`
+      : `${API_BASE_URL}/admin/moderation/campaigns/${contentId}/${action}`;
 
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -240,18 +297,26 @@ export default function AdminContent() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
-                            <div className="h-10 w-10 rounded-lg bg-gray-200 flex items-center justify-center">
-                              {activeTab === 'stories' ? 
-                                <FileText className="h-5 w-5 text-blue-500" /> : 
-                                <Heart className="h-5 w-5 text-red-500" />
-                              }
-                            </div>
+                            {item.featured_image || item.image ? (
+                              <img
+                                src={item.featured_image || item.image || ''}
+                                alt={item.title}
+                                className="h-10 w-10 rounded-lg object-cover"
+                              />
+                            ) : (
+                              <div className="h-10 w-10 rounded-lg bg-gray-200 flex items-center justify-center">
+                                {activeTab === 'stories' ? 
+                                  <FileText className="h-5 w-5 text-blue-500" /> : 
+                                  <Heart className="h-5 w-5 text-red-500" />
+                                }
+                              </div>
+                            )}
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">{item.title}</div>
                             <div className="text-sm text-gray-500">{item.submitted_by}</div>
                             <div className="text-xs text-gray-400 mt-1">
-                              {item.content?.substring(0, 50)}...
+                              {item.content?.substring(0, 80)}...
                             </div>
                           </div>
                         </div>

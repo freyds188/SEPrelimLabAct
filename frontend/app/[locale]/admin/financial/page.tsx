@@ -18,6 +18,8 @@ import {
   Users
 } from 'lucide-react';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/v1';
+
 interface Order {
   id: number;
   order_number: string;
@@ -68,7 +70,7 @@ export default function AdminFinancial() {
       setLoading(true);
       
       // Fetch financial overview
-      const overviewResponse = await fetch('/api/v1/admin/financial/overview', {
+      const overviewResponse = await fetch(`${API_BASE_URL}/admin/financial/overview`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
           'Content-Type': 'application/json',
@@ -77,7 +79,7 @@ export default function AdminFinancial() {
 
       if (overviewResponse.ok) {
         const overviewData = await overviewResponse.json();
-        setFinancialOverview(overviewData.data);
+        setFinancialOverview(overviewData?.data ?? null);
       }
 
       // Fetch orders
@@ -90,7 +92,7 @@ export default function AdminFinancial() {
         max_amount: maxAmount,
       });
 
-      const ordersResponse = await fetch(`/api/v1/admin/financial/orders?${params}`, {
+      const ordersResponse = await fetch(`${API_BASE_URL}/admin/financial/orders?${params}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
           'Content-Type': 'application/json',
@@ -99,7 +101,9 @@ export default function AdminFinancial() {
 
       if (ordersResponse.ok) {
         const ordersData = await ordersResponse.json();
-        setOrders(ordersData.data || []);
+        const payload = ordersData?.data; // Laravel paginator
+        const items = Array.isArray(payload?.data) ? payload.data : Array.isArray(ordersData?.data) ? ordersData.data : [];
+        setOrders(items || []);
       }
     } catch (error) {
       console.error('Error fetching financial data:', error);
@@ -110,7 +114,7 @@ export default function AdminFinancial() {
 
   const handleOrderAction = async (orderId: number, action: string, data?: any) => {
     try {
-      const response = await fetch(`/api/v1/admin/financial/orders/${orderId}/${action}`, {
+      const response = await fetch(`${API_BASE_URL}/admin/financial/orders/${orderId}/${action}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
@@ -212,7 +216,7 @@ export default function AdminFinancial() {
                 </div>
                 <div className="text-sm text-gray-500">Total Orders</div>
                 <div className="text-xs text-gray-600">
-                  ₱{financialOverview.orders.average_order_value.toLocaleString()} avg
+                  ₱{(financialOverview.revenue.average_order_value ?? 0).toLocaleString()} avg
                 </div>
               </div>
             </div>

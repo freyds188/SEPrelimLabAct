@@ -10,6 +10,21 @@ export function middleware(request: NextRequest) {
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   )
 
+  // Admin route guard (with locale)
+  const localeFromPath = (() => {
+    const seg = pathname.split('/')[1]
+    return locales.includes(seg as any) ? seg : null
+  })()
+  const isAdminWithLocale = localeFromPath && pathname.startsWith(`/${localeFromPath}/admin`) && !pathname.startsWith(`/${localeFromPath}/admin/login`)
+  if (isAdminWithLocale) {
+    const hasAdminCookie = Boolean(request.cookies.get('cw_admin')?.value)
+    if (!hasAdminCookie) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/${localeFromPath}/admin/login`
+      return NextResponse.redirect(url)
+    }
+  }
+
   // Handle admin routes - redirect to default locale if no locale
   if (pathname.startsWith('/admin') && !pathnameHasLocale) {
     const locale = defaultLocale

@@ -18,17 +18,21 @@ import {
   RefreshCw
 } from 'lucide-react';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/v1';
+
 interface User {
   id: number;
   name: string;
   email: string;
-  status: string;
-  role: string;
+  status?: string;
+  role?: string;
   created_at: string;
   last_login_at: string;
   is_weaver: boolean;
   weaver_verified: boolean;
   last_login_formatted: string;
+  email_verified_at?: string;
+  is_active?: boolean;
 }
 
 interface UsersResponse {
@@ -73,7 +77,7 @@ export default function AdminUsers() {
         per_page: '15',
       });
 
-      const response = await fetch(`/api/v1/admin/users?${params}`, {
+      const response = await fetch(`${API_BASE_URL}/admin/users?${params}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
           'Content-Type': 'application/json',
@@ -81,10 +85,13 @@ export default function AdminUsers() {
       });
 
       if (response.ok) {
-        const data: UsersResponse = await response.json();
-        setUsers(data.data);
-        setTotalPages(data.last_page);
-        setTotalUsers(data.total);
+        const json = await response.json();
+        const payload = json?.data; // Laravel paginator
+        const items = Array.isArray(payload?.data) ? payload.data : Array.isArray(json?.data) ? json.data : [];
+
+        setUsers(items || []);
+        setTotalPages(payload?.last_page ?? 1);
+        setTotalUsers(payload?.total ?? (items?.length || 0));
       } else {
         setError('Failed to fetch users');
       }
@@ -128,7 +135,7 @@ export default function AdminUsers() {
 
   const handleUserAction = async (userId: number, action: string, data?: any) => {
     try {
-      const response = await fetch(`/api/v1/admin/users/${userId}/${action}`, {
+      const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/${action}`, {
         method: action === 'delete' ? 'DELETE' : 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
@@ -171,36 +178,38 @@ export default function AdminUsers() {
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status?: string) => {
+    const safeStatus = status || 'inactive';
     const statusConfig = {
       active: { color: 'bg-green-100 text-green-800', icon: CheckCircle },
       inactive: { color: 'bg-gray-100 text-gray-800', icon: UserX },
       suspended: { color: 'bg-red-100 text-red-800', icon: Ban },
     };
 
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.inactive;
+    const config = statusConfig[safeStatus as keyof typeof statusConfig] || statusConfig.inactive;
     const Icon = config.icon;
 
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
         <Icon className="h-3 w-3 mr-1" />
-        {status.charAt(0).toUpperCase() + status.slice(1)}
+        {safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1)}
       </span>
     );
   };
 
-  const getRoleBadge = (role: string) => {
+  const getRoleBadge = (role?: string) => {
+    const safeRole = role || 'user';
     const roleConfig = {
       user: { color: 'bg-blue-100 text-blue-800' },
       weaver: { color: 'bg-purple-100 text-purple-800' },
       admin: { color: 'bg-red-100 text-red-800' },
     };
 
-    const config = roleConfig[role as keyof typeof roleConfig] || roleConfig.user;
+    const config = roleConfig[safeRole as keyof typeof roleConfig] || roleConfig.user;
 
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
-        {role.charAt(0).toUpperCase() + role.slice(1)}
+        {safeRole.charAt(0).toUpperCase() + safeRole.slice(1)}
       </span>
     );
   };
@@ -490,10 +499,10 @@ export default function AdminUsers() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {getRoleBadge(user.role)}
+                    {getRoleBadge(user.role ?? (user.is_weaver ? 'weaver' : 'user'))}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(user.status)}
+                    {getStatusBadge(user.status ?? (user.is_active ? 'active' : 'inactive'))}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {new Date(user.created_at).toLocaleDateString()}

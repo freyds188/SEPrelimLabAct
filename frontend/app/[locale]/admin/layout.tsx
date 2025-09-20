@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import { getLocaleFromPathname } from '@/lib/i18n';
 import { 
   LayoutDashboard, 
   Users, 
@@ -34,6 +35,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [adminUser, setAdminUser] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     setMounted(true);
@@ -55,9 +57,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     console.log('Admin user exists:', !!storedAdminUser);
 
     if (!adminToken || !storedAdminUser) {
-      console.log('No admin credentials found, but continuing to show admin layout...');
-      // For now, don't redirect - just set loading to false
-      setLoading(false);
+      const locale = getLocaleFromPathname(pathname || '/en');
+      router.replace(`/${locale}/admin/login`);
       return;
     }
 
@@ -76,19 +77,23 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       if (response.ok) {
         const data = await response.json();
         console.log('Admin user data:', data);
-        setAdminUser(data.data);
+        setAdminUser(data.data?.user || data.data);
+        // Set lightweight cookie so middleware can gate client navigations
+        document.cookie = `cw_admin=1; path=/; SameSite=Lax`;
         fetchDashboardStats(adminToken);
       } else {
         // Token invalid, redirect to login
         console.log('Token invalid, redirecting to login...');
         localStorage.removeItem('admin_token');
         localStorage.removeItem('admin_user');
-        router.push('/en/admin/login');
+        document.cookie = 'cw_admin=; Max-Age=0; path=/';
+        const locale = getLocaleFromPathname(pathname || '/en');
+        router.replace(`/${locale}/admin/login`);
       }
     } catch (error) {
       console.error('Auth check failed:', error);
       // On error, still try to load dashboard stats with stored token
-      fetchDashboardStats(adminToken);
+      fetchDashboardStats(adminToken || '');
     }
   };
 
@@ -115,7 +120,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const handleLogout = () => {
     localStorage.removeItem('admin_token');
     localStorage.removeItem('admin_user');
-    router.push('/en/admin/login');
+    document.cookie = 'cw_admin=; Max-Age=0; path=/';
+    const locale = getLocaleFromPathname(pathname || '/en');
+    router.push(`/${locale}/admin/login`);
   };
 
   const navigation = [
