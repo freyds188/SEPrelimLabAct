@@ -5,18 +5,16 @@ import {
   Search, 
   Filter, 
   MoreHorizontal, 
-  Eye, 
-  Edit, 
-  Trash2, 
   CheckCircle, 
   XCircle,
   Ban,
-  UserCheck,
   UserX,
   Plus,
   Download,
   RefreshCw
 } from 'lucide-react';
+import { useAdminHeader } from '@/components/admin/header-context'
+import toast from 'react-hot-toast'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/v1';
 
@@ -33,6 +31,8 @@ interface User {
   last_login_formatted: string;
   email_verified_at?: string;
   is_active?: boolean;
+  banned_at?: string | null;
+  ban_reason?: string | null;
 }
 
 interface UsersResponse {
@@ -58,6 +58,28 @@ export default function AdminUsers() {
   const [sortOrder, setSortOrder] = useState('desc');
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const { setTitle, setSubtitle, setActions } = useAdminHeader();
+
+  useEffect(() => {
+    setTitle('User Management');
+    setSubtitle('Manage user accounts, permissions, and verification status');
+    setActions(
+      <div className="flex items-center space-x-3">
+        <button
+          onClick={() => fetchUsers()}
+          className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+        >
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Refresh
+        </button>
+        <button className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+          <Plus className="h-4 w-4 mr-2" />
+          Add User
+        </button>
+      </div>
+    );
+    return () => setActions(undefined);
+  }, []);
 
   useEffect(() => {
     fetchUsers();
@@ -145,15 +167,16 @@ export default function AdminUsers() {
       });
 
       if (response.ok) {
+        toast.success(action === 'ban' ? 'User banned' : action === 'unban' ? 'User unbanned' : 'Action complete');
         fetchUsers();
         setSelectedUsers([]);
       } else {
         const errorData = await response.json();
-        alert(`Failed to ${action} user: ${errorData.message}`);
+        toast.error(`Failed to ${action} user: ${errorData.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error(`Error ${action}ing user:`, error);
-      alert(`Failed to ${action} user`);
+      toast.error(`Failed to ${action} user`);
     }
   };
 
@@ -224,31 +247,9 @@ export default function AdminUsers() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-          <p className="text-gray-600 mt-2">
-            Manage user accounts, permissions, and verification status
-          </p>
-        </div>
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={() => fetchUsers()}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
-          </button>
-          <button className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
-            <Plus className="h-4 w-4 mr-2" />
-            Add User
-          </button>
-        </div>
-      </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <div className="text-2xl font-bold text-gray-900">{totalUsers}</div>
           <div className="text-sm text-gray-500">Total Users</div>
@@ -513,42 +514,17 @@ export default function AdminUsers() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-2">
                       <button
-                        onClick={() => {/* View user details */}}
-                        className="text-blue-600 hover:text-blue-900"
-                        title="View Details"
+                        onClick={() => user.banned_at 
+                          ? handleUserAction(user.id, 'unban') 
+                          : handleUserAction(user.id, 'ban', { 
+                              reason: 'Policy violation', 
+                              duration: 'permanent', 
+                              admin_notes: 'Banned via admin UI'
+                            })}
+                        className={`hover:text-red-800 ${user.status === 'suspended' ? 'text-gray-600 hover:text-gray-800' : 'text-red-600'}`}
+                        title={user.banned_at ? 'Unban User' : 'Ban User'}
                       >
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => {/* Edit user */}}
-                        className="text-green-600 hover:text-green-900"
-                        title="Edit User"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      {user.status === 'suspended' ? (
-                        <button
-                          onClick={() => handleUserAction(user.id, 'unban')}
-                          className="text-green-600 hover:text-green-900"
-                          title="Unban User"
-                        >
-                          <UserCheck className="h-4 w-4" />
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => handleUserAction(user.id, 'ban', { reason: 'Admin action' })}
-                          className="text-red-600 hover:text-red-900"
-                          title="Ban User"
-                        >
-                          <Ban className="h-4 w-4" />
-                        </button>
-                      )}
-                      <button
-                        onClick={() => handleUserAction(user.id, 'delete')}
-                        className="text-red-600 hover:text-red-900"
-                        title="Delete User"
-                      >
-                        <Trash2 className="h-4 w-4" />
+                        <Ban className="h-4 w-4" />
                       </button>
                     </div>
                   </td>

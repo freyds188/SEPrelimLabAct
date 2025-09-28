@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import '../globals.css'
-import { Navbar } from '@/components/layout/navbar'
-import { Footer } from '@/components/layout/footer'
+import { SiteChrome } from '@/components/layout/site-chrome'
 import { Toaster } from '@/components/ui/toast'
 import { getTranslations, type Locale } from '@/lib/i18n'
 
@@ -33,13 +32,9 @@ export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
           Skip to main content
         </a>
         
-        <div className="min-h-screen flex flex-col">
-          <Navbar />
-          <main id="main-content" className="flex-1" role="main" tabIndex={-1}>
-            {children}
-          </main>
-          <Footer />
-        </div>
+        <SiteChrome>
+          {children}
+        </SiteChrome>
         <Toaster />
       </body>
     </html>

@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { 
   Search, 
   Filter, 
-  Eye, 
   Edit, 
   Trash2, 
   CheckCircle, 
@@ -16,6 +15,8 @@ import {
   Plus,
   RefreshCw
 } from 'lucide-react';
+import toast from 'react-hot-toast'
+import { useAdminHeader } from '@/components/admin/header-context'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/v1';
 
@@ -38,6 +39,28 @@ export default function AdminContent() {
   const [activeTab, setActiveTab] = useState<'stories' | 'campaigns'>('stories');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const { setTitle, setSubtitle, setActions } = useAdminHeader();
+
+  useEffect(() => {
+    setTitle('Content Management');
+    setSubtitle('Moderate stories and campaigns');
+    setActions(
+      <div className="flex items-center space-x-3">
+        <button
+          onClick={fetchContent}
+          className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+        >
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Refresh
+        </button>
+        <button className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+          <Plus className="h-4 w-4 mr-2" />
+          Add Content
+        </button>
+      </div>
+    );
+    return () => setActions(undefined);
+  }, [activeTab]);
 
   useEffect(() => {
     fetchContent();
@@ -150,12 +173,95 @@ export default function AdminContent() {
       });
 
       if (response.ok) {
+        toast.success(action.charAt(0).toUpperCase() + action.slice(1) + ' successful');
         fetchContent();
       }
     } catch (error) {
       console.error(`Error ${action}ing content:`, error);
+      toast.error(`Failed to ${action} content`)
     }
   };
+
+  const handleDelete = async (contentId: number) => {
+    if (!confirm('Delete this content? This cannot be undone.')) return;
+    try {
+      const endpoint = activeTab === 'stories' 
+        ? `${API_BASE_URL}/admin/stories/${contentId}`
+        : `${API_BASE_URL}/campaigns/${contentId}`;
+
+      const response = await fetch(endpoint, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (response.ok) {
+        toast.success('Content deleted');
+        fetchContent();
+      } else {
+        const err = await response.json().catch(() => ({}));
+        // Fallback: admins cannot delete items they don't own. For stories, use moderation reject to remove from site.
+        if (activeTab === 'stories' && (response.status === 403 || /only delete/i.test(err?.message || ''))) {
+          const rejectRes = await fetch(`${API_BASE_URL}/admin/moderation/stories/${contentId}/reject`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              rejection_reason: 'Removed by admin',
+              admin_notes: 'Deleted via admin UI',
+            }),
+          });
+          if (rejectRes.ok) {
+            toast.success('Story removed (rejected)');
+            fetchContent();
+            return;
+          }
+        }
+        toast.error(err?.message || 'Failed to delete');
+      }
+    } catch (e) {
+      console.error('Delete failed', e);
+      toast.error('Delete failed');
+    }
+  }
+
+  const handleEdit = async (item: ContentItem) => {
+    const newTitle = prompt('Edit title', item.title);
+    if (newTitle === null) return;
+    const newBody = prompt('Edit content/description', item.content || '');
+    if (newBody === null) return;
+
+    try {
+      const endpoint = activeTab === 'stories' 
+        ? `${API_BASE_URL}/stories/${item.id}`
+        : `${API_BASE_URL}/campaigns/${item.id}`;
+      const payload = activeTab === 'stories'
+        ? { title: newTitle, content: newBody }
+        : { title: newTitle, description: newBody };
+
+      const response = await fetch(endpoint, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      if (response.ok) {
+        toast.success('Content updated');
+        fetchContent();
+      } else {
+        const err = await response.json().catch(() => ({}));
+        toast.error(err?.message || 'Failed to update');
+      }
+    } catch (e) {
+      console.error('Update failed', e);
+      toast.error('Update failed');
+    }
+  }
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
@@ -188,28 +294,6 @@ export default function AdminContent() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Content Management</h1>
-          <p className="text-gray-600 mt-2">
-            Moderate stories and campaigns
-          </p>
-        </div>
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={fetchContent}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
-          </button>
-          <button className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Content
-          </button>
-        </div>
-      </div>
 
       {/* Tabs */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -330,14 +414,7 @@ export default function AdminContent() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2">
                           <button
-                            onClick={() => {/* View content details */}}
-                            className="text-blue-600 hover:text-blue-900"
-                            title="View Details"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => {/* Edit content */}}
+                            onClick={() => handleEdit(item)}
                             className="text-green-600 hover:text-green-900"
                             title="Edit Content"
                           >
@@ -362,7 +439,7 @@ export default function AdminContent() {
                             </>
                           )}
                           <button
-                            onClick={() => {/* Delete content */}}
+                            onClick={() => handleDelete(item.id)}
                             className="text-red-600 hover:text-red-900"
                             title="Delete Content"
                           >

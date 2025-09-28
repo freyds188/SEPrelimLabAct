@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  Search, 
-  Filter, 
-  Eye, 
-  Edit, 
-  Trash2, 
-  CheckCircle, 
+import {
+  Search,
+  Filter,
+  Edit,
+  Trash2,
+  CheckCircle,
   XCircle,
   Package,
   Plus,
@@ -19,6 +18,8 @@ import {
   BarChart3,
   Upload
 } from 'lucide-react';
+import toast from 'react-hot-toast'
+import { useAdminHeader } from '@/components/admin/header-context'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/v1';
 
@@ -69,7 +70,35 @@ export default function AdminProducts() {
   const [showFilters, setShowFilters] = useState(false);
   const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [bulkUploadFile, setBulkUploadFile] = useState<File | null>(null);
+  const { setTitle, setSubtitle, setActions } = useAdminHeader();
 
+  useEffect(() => {
+    setTitle('Product Management');
+    setSubtitle('Manage products, inventory, and approvals');
+    setActions(
+      <div className="flex items-center space-x-3">
+        <button
+          onClick={() => fetchProducts()}
+          className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+        >
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Refresh
+        </button>
+        <button
+          onClick={() => setShowBulkUpload(true)}
+          className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+        >
+          <Upload className="h-4 w-4 mr-2" />
+          Bulk Upload
+        </button>
+        <button className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+          <Plus className="h-4 w-4 mr-2" />
+          Add Product
+        </button>
+      </div>
+    );
+    return () => setActions(undefined);
+  }, []);
   useEffect(() => {
     fetchProducts();
   }, [currentPage, searchTerm, statusFilter, categoryFilter, weaverFilter, minPrice, maxPrice, sortBy, sortOrder]);
@@ -213,21 +242,82 @@ export default function AdminProducts() {
       });
 
       if (response.ok) {
+        toast.success(action.charAt(0).toUpperCase() + action.slice(1) + ' successful');
         fetchProducts();
         setSelectedProducts([]);
       } else {
         const errorData = await response.json();
-        alert(`Failed to ${action} product: ${errorData.message}`);
+        toast.error(`Failed to ${action} product: ${errorData.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error(`Error ${action}ing product:`, error);
-      alert(`Failed to ${action} product`);
+      toast.error(`Failed to ${action} product`);
     }
   };
 
+  const handleDelete = async (productId: number) => {
+    if (!confirm('Delete this product? This cannot be undone.')) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/products/${productId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (response.ok) {
+        toast.success('Product deleted');
+        fetchProducts();
+      } else {
+        const err = await response.json().catch(() => ({}));
+        toast.error(err?.message || 'Failed to delete');
+      }
+    } catch (e) {
+      console.error('Delete failed', e);
+      toast.error('Delete failed');
+    }
+  };
+
+  const handleEdit = async (product: Product) => {
+    const newName = prompt('Edit product name', product.name);
+    if (newName === null) return;
+    const newPrice = prompt('Edit price', product.price.toString());
+    if (newPrice === null) return;
+    const newStock = prompt('Edit stock quantity', product.stock_quantity.toString());
+    if (newStock === null) return;
+    const newDescription = prompt('Edit description', product.description || '');
+    if (newDescription === null) return;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/products/${product.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: newName,
+          price: parseFloat(newPrice),
+          stock_quantity: parseInt(newStock),
+          description: newDescription,
+        }),
+      });
+      if (response.ok) {
+        toast.success('Product updated');
+        fetchProducts();
+      } else {
+        const err = await response.json().catch(() => ({}));
+        toast.error(err?.message || 'Failed to update');
+      }
+    } catch (e) {
+      console.error('Update failed', e);
+      toast.error('Update failed');
+    }
+  }
+
   const handleBulkAction = async (action: string) => {
     if (selectedProducts.length === 0) {
-      alert('Please select products first');
+      toast.error('Please select products first');
       return;
     }
 
@@ -239,7 +329,7 @@ export default function AdminProducts() {
 
     try {
       for (const productId of selectedProducts) {
-        await handleProductAction(productId, action);
+        await handleDelete(productId);
       }
     } catch (error) {
       console.error(`Error performing bulk ${action}:`, error);
@@ -248,7 +338,7 @@ export default function AdminProducts() {
 
   const handleBulkUpload = async () => {
     if (!bulkUploadFile) {
-      alert('Please select a file to upload');
+      toast.error('Please select a file to upload');
       return;
     }
 
@@ -266,17 +356,17 @@ export default function AdminProducts() {
 
       if (response.ok) {
         const data = await response.json();
-        alert(`Successfully uploaded ${data.data.uploaded_count} products`);
+        toast.success(`Successfully uploaded ${data.data.uploaded_count} products`);
         setShowBulkUpload(false);
         setBulkUploadFile(null);
         fetchProducts();
       } else {
         const errorData = await response.json();
-        alert(`Failed to upload products: ${errorData.message}`);
+        toast.error(`Failed to upload products: ${errorData.message}`);
       }
     } catch (error) {
       console.error('Error uploading products:', error);
-      alert('Failed to upload products');
+      toast.error('Failed to upload products');
     }
   };
 
@@ -334,38 +424,9 @@ export default function AdminProducts() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Product Management</h1>
-          <p className="text-gray-600 mt-2">
-            Manage products, inventory, and product approvals
-          </p>
-        </div>
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={() => fetchProducts()}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
-          </button>
-          <button
-            onClick={() => setShowBulkUpload(true)}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-          >
-            <Upload className="h-4 w-4 mr-2" />
-            Bulk Upload
-          </button>
-          <button className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Product
-          </button>
-        </div>
-      </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <div className="text-2xl font-bold text-gray-900">{totalProducts}</div>
           <div className="text-sm text-gray-500">Total Products</div>
@@ -411,13 +472,6 @@ export default function AdminProducts() {
             
             {selectedProducts.length > 0 && (
               <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => handleBulkAction('approve')}
-                  className="inline-flex items-center px-3 py-2 border border-green-300 rounded-md text-sm font-medium text-green-700 bg-white hover:bg-green-50"
-                >
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Approve ({selectedProducts.length})
-                </button>
                 <button
                   onClick={() => handleBulkAction('delete')}
                   className="inline-flex items-center px-3 py-2 border border-red-300 rounded-md text-sm font-medium text-red-700 bg-white hover:bg-red-50"
@@ -656,30 +710,14 @@ export default function AdminProducts() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-2">
                       <button
-                        onClick={() => {/* View product details */}}
-                        className="text-blue-600 hover:text-blue-900"
-                        title="View Details"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => {/* Edit product */}}
+                        onClick={() => handleEdit(product)}
                         className="text-green-600 hover:text-green-900"
                         title="Edit Product"
                       >
                         <Edit className="h-4 w-4" />
                       </button>
-                      {product.status !== 'approved' && (
-                        <button
-                          onClick={() => handleProductAction(product.id, 'approve')}
-                          className="text-green-600 hover:text-green-900"
-                          title="Approve Product"
-                        >
-                          <CheckCircle className="h-4 w-4" />
-                        </button>
-                      )}
                       <button
-                        onClick={() => handleProductAction(product.id, 'delete')}
+                        onClick={() => handleDelete(product.id)}
                         className="text-red-600 hover:text-red-900"
                         title="Delete Product"
                       >

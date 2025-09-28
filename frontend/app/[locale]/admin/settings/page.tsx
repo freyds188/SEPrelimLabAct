@@ -16,6 +16,7 @@ import {
   Trash2,
   Edit
 } from 'lucide-react';
+import { useAdminHeader } from '@/components/admin/header-context'
 
 interface AdminUser {
   id: number;
@@ -59,7 +60,13 @@ export default function AdminSettings() {
     role: 'admin'
   });
 
+  const { setTitle, setSubtitle, setActions } = useAdminHeader();
+
   useEffect(() => {
+    setTitle('System Settings');
+    setSubtitle('Manage configuration, admin users, and monitor system health');
+    setActions(undefined);
+    return () => setActions(undefined);
     if (activeTab === 'admin-users') {
       fetchAdminUsers();
     } else if (activeTab === 'system-health') {
@@ -194,15 +201,6 @@ export default function AdminSettings() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">System Settings</h1>
-          <p className="text-gray-600 mt-2">
-            Manage system configuration, admin users, and monitor system health
-          </p>
-        </div>
-      </div>
 
       {/* Tabs */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">

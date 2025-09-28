@@ -1,19 +1,35 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Shield, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { getLocaleFromPathname } from '@/lib/i18n'
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [checking, setChecking] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+    const user = typeof window !== 'undefined' ? localStorage.getItem('admin_user') : null;
+    const locale = getLocaleFromPathname(pathname || '/en');
+    if (token && user) {
+      // Ensure middleware gate passes
+      document.cookie = `cw_admin=1; path=/; SameSite=Lax`;
+      router.replace(`/${locale}/admin/dashboard`);
+      return;
+    }
+    setChecking(false);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,12 +49,15 @@ export default function AdminLoginPage() {
        const data = await response.json();
        console.log('Response data:', data);
 
-                    if (response.ok && data.success) {
+                   if (response.ok && data.success) {
          // Store admin token
          localStorage.setItem('admin_token', data.data.token);
          localStorage.setItem('admin_user', JSON.stringify(data.data.user));
+         // Lightweight cookie so middleware allows admin routes immediately
+         document.cookie = `cw_admin=1; path=/; SameSite=Lax`;
          toast.success('Admin login successful!');
-         router.push('/en/admin');
+         const locale = getLocaleFromPathname(pathname || '/en');
+         router.replace(`/${locale}/admin/dashboard`);
        } else {
          toast.error(data.message || 'Login failed');
        }
@@ -51,12 +70,12 @@ export default function AdminLoginPage() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || checking) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Signing in...</p>
+          <p className="text-gray-600">{checking ? 'Checking session...' : 'Signing in...'}</p>
         </div>
       </div>
     );

@@ -245,6 +245,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/products', [AdminProductController::class, 'createProduct']);
             Route::put('/products/{product}', [AdminProductController::class, 'updateProduct']);
             Route::delete('/products/{product}', [AdminProductController::class, 'deleteProduct']);
+            Route::delete('/admin/products/{product}', [AdminProductController::class, 'deleteProduct']);
             Route::post('/products/bulk-upload', [AdminProductController::class, 'bulkUpload']);
             Route::post('/products/{product}/approve', [AdminProductController::class, 'approveProduct']);
             Route::get('/products/stats', [AdminProductController::class, 'getProductStats']);
@@ -259,6 +260,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/moderation/campaigns', [AdminContentModerationController::class, 'getCampaignsForModeration']);
             Route::post('/moderation/campaigns/{campaign}/approve', [AdminContentModerationController::class, 'approveCampaign']);
             Route::get('/moderation/stats', [AdminContentModerationController::class, 'getModerationStats']);
+            // Admin content hard delete (stories)
+            Route::delete('/stories/{story}', [AdminContentModerationController::class, 'deleteStory']);
             
             // Financial management
             Route::get('/financial/overview', [AdminFinancialController::class, 'getFinancialOverview']);

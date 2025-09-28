@@ -399,6 +399,39 @@ class AdminContentModerationController extends Controller
     }
 
     /**
+     * Permanently delete a story (admin only)
+     */
+    public function deleteStory(Story $story): JsonResponse
+    {
+        try {
+            $oldValues = $story->toArray();
+            $storyId = $story->id;
+            $story->delete();
+
+            // Log delete action
+            $this->logAuditAction(
+                'delete',
+                'Story',
+                $storyId,
+                $oldValues,
+                [],
+                'Story hard deleted by admin'
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Story deleted successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete story',
+                'error' => config('app.debug') ? $e->getMessage() : null,
+            ], 500);
+        }
+    }
+
+    /**
      * Approve campaign
      */
     public function approveCampaign(Request $request, Campaign $campaign): JsonResponse

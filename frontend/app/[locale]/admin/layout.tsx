@@ -3,26 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { getLocaleFromPathname } from '@/lib/i18n';
-import { 
-  LayoutDashboard, 
-  Users, 
-  Package, 
-  FileText, 
-  BarChart3, 
-  Settings, 
-  LogOut,
-  Menu,
-  X,
-  Shield,
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  TrendingUp,
-  DollarSign,
-  ShoppingCart,
-  Heart
-} from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { Toaster } from '@/components/ui/toaster';
+import { AdminHeaderProvider } from '@/components/admin/header-context'
+import { AdminSidebar } from '@/components/admin/sidebar'
+import { AdminTopbar } from '@/components/admin/topbar'
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -36,6 +21,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const isLoginRoute = /\/admin\/login$/.test(pathname || '');
 
   useEffect(() => {
     setMounted(true);
@@ -43,10 +29,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   useEffect(() => {
     // Only run on client side
-    if (typeof window !== 'undefined' && mounted) {
+    if (typeof window !== 'undefined' && mounted && !isLoginRoute) {
       checkAdminAuth();
+    } else if (isLoginRoute) {
+      setLoading(false);
     }
-  }, [mounted]);
+  }, [mounted, isLoginRoute]);
 
   const checkAdminAuth = async () => {
     console.log('Checking admin auth...');
@@ -125,20 +113,25 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     router.push(`/${locale}/admin/login`);
   };
 
-  const navigation = [
-    { name: 'Dashboard', href: '/en/admin', icon: LayoutDashboard },
-    { name: 'Users', href: '/en/admin/users', icon: Users },
-    { name: 'Products', href: '/en/admin/products', icon: Package },
-    { name: 'Content', href: '/en/admin/content', icon: FileText },
-    { name: 'Financial', href: '/en/admin/financial', icon: BarChart3 },
-    { name: 'Settings', href: '/en/admin/settings', icon: Settings },
-  ];
+  // legacy navigation removed in favor of AdminSidebar
 
   if (!mounted) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
         <div className="mt-4 text-gray-600">Initializing...</div>
+      </div>
+    );
+  }
+
+  // If on login route, render children without admin chrome
+  if (isLoginRoute) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <main className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+          {children}
+        </main>
+        <Toaster />
       </div>
     );
   }
@@ -166,87 +159,23 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       )}
 
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
-        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <Shield className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-gray-900">Admin</span>
-          </div>
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-600"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        <div className="flex flex-col h-full">
-          <nav className="flex-1 px-3 py-6">
-            <div className="space-y-2">
-              {navigation.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="group flex items-center px-3 py-3 text-sm font-medium text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-700 transition-colors"
-                >
-                  <item.icon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-blue-500" />
-                  {item.name}
-                </a>
-              ))}
-            </div>
-          </nav>
-
-          <div className="p-4 border-t border-gray-200">
-            <div className="flex items-center space-x-3 mb-3">
-              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                <Shield className="w-4 h-4 text-gray-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {adminUser?.name || 'Admin User'}
-                </p>
-                <p className="text-xs text-gray-500 truncate">
-                  {adminUser?.email || 'admin@cordiweave.ph'}
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center justify-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              Sign out
-            </button>
-          </div>
-        </div>
+      <div className={`fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`} aria-label="Sidebar">
+        <AdminSidebar
+          adminUser={adminUser}
+          onLogout={handleLogout}
+        />
       </div>
 
       {/* Main content */}
       <div className="lg:pl-64">
-        {/* Top bar */}
-        <div className="sticky top-0 z-40 flex items-center gap-x-6 bg-white px-4 py-4 shadow-sm border-b border-gray-200 sm:px-6 lg:px-8">
-          <button
-            type="button"
-            className="-m-2.5 p-2.5 text-gray-700 lg:hidden"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Menu className="h-6 w-6" />
-          </button>
-          <div className="flex-1 text-sm font-semibold leading-6 text-gray-900">
-            CordiWeave Admin Dashboard
-          </div>
-        </div>
-
-        {/* Page content */}
-        <main className="py-6">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            {children}
-          </div>
-        </main>
+        <AdminHeaderProvider>
+          <AdminTopbar onOpenSidebar={() => setSidebarOpen(true)} />
+          <main className="pt-0 pb-8">
+            <div className="px-4 sm:px-6 lg:px-10">
+              {children}
+            </div>
+          </main>
+        </AdminHeaderProvider>
       </div>
       <Toaster />
     </div>
