@@ -51,6 +51,14 @@ class Product extends Model
         'rating' => 'decimal:2',
     ];
 
+    // Ensure computed accessors are included in API responses
+    protected $appends = [
+        'formatted_price',
+        'stock_status',
+        'main_image_url',
+        'image_urls',
+    ];
+
     protected static function boot()
     {
         parent::boot();
@@ -76,6 +84,14 @@ class Product extends Model
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Get the order items for the product.
+     */
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
     }
 
     /**

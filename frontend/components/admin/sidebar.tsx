@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import { usePathname } from 'next/navigation'
 import { getLocaleFromPathname } from '@/lib/i18n'
-import { LayoutDashboard, Users, Package, FileText, BarChart3, Settings, LogOut, Shield } from 'lucide-react'
+import { LayoutDashboard, Users, Package, FileText, BarChart3, Settings, LogOut, Shield, Heart } from 'lucide-react'
 
 interface SidebarProps {
 	adminUser?: { name?: string; email?: string }
@@ -21,6 +21,7 @@ export function AdminSidebar({ adminUser, onLogout }: SidebarProps) {
 		{ label: 'Users', href: `${base}/users`, icon: Users },
 		{ label: 'Products', href: `${base}/products`, icon: Package },
 		{ label: 'Content', href: `${base}/content`, icon: FileText },
+		{ label: 'Donations', href: `${base}/donations`, icon: Heart },
 		{ label: 'Financial', href: `${base}/financial`, icon: BarChart3 },
 		{ label: 'Settings', href: `${base}/settings`, icon: Settings },
 	// eslint-disable-next-line react-hooks/exhaustive-deps

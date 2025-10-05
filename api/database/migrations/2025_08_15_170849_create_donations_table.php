@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('campaign_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
-            $table->string('donor_name');
-            $table->string('donor_email');
+            $table->string('donor_name')->nullable();
+            $table->string('donor_email')->nullable();
             $table->decimal('amount', 10, 2);
             $table->enum('status', ['pending', 'completed', 'failed', 'refunded'])->default('pending');
             $table->string('payment_method')->nullable();

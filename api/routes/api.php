@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\AdminProductController;
 use App\Http\Controllers\Api\AdminContentModerationController;
 use App\Http\Controllers\Api\AdminFinancialController;
 use App\Http\Controllers\Api\AdminAnnouncementController;
+use App\Http\Controllers\Api\DonationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -111,6 +112,12 @@ Route::prefix('v1')->group(function () {
     Route::get('/campaigns', [CampaignController::class, 'index']);
     Route::get('/campaigns/featured', [CampaignController::class, 'featured']);
     Route::get('/campaigns/{campaign}', [CampaignController::class, 'show']);
+    Route::get('/totals', [CampaignController::class, 'getTotals']);
+
+    // Donation routes
+    Route::post('/donations', [DonationController::class, 'store']);
+    Route::get('/donations', [DonationController::class, 'index']);
+    Route::get('/donations/{donation}', [DonationController::class, 'show']);
 
     // Glossary routes
     Route::get('/glossary', [GlossaryTermController::class, 'index']);
@@ -243,9 +250,9 @@ Route::prefix('v1')->group(function () {
             // Product management
             Route::get('/products', [AdminProductController::class, 'getProducts']);
             Route::post('/products', [AdminProductController::class, 'createProduct']);
-            Route::put('/products/{product}', [AdminProductController::class, 'updateProduct']);
-            Route::delete('/products/{product}', [AdminProductController::class, 'deleteProduct']);
-            Route::delete('/admin/products/{product}', [AdminProductController::class, 'deleteProduct']);
+            // Force route model binding by numeric id since Product uses slug by default
+            Route::put('/products/{product:id}', [AdminProductController::class, 'updateProduct']);
+            Route::delete('/products/{product:id}', [AdminProductController::class, 'deleteProduct']);
             Route::post('/products/bulk-upload', [AdminProductController::class, 'bulkUpload']);
             Route::post('/products/{product}/approve', [AdminProductController::class, 'approveProduct']);
             Route::get('/products/stats', [AdminProductController::class, 'getProductStats']);
@@ -271,6 +278,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/financial/payouts', [AdminFinancialController::class, 'getPayouts']);
             Route::post('/financial/payouts/{payout}/process', [AdminFinancialController::class, 'processPayout']);
             Route::get('/financial/reports', [AdminFinancialController::class, 'getFinancialReports']);
+            
+            // Donations routes
+            Route::get('/donations', [DonationController::class, 'index']);
+            Route::get('/donations/{donation}', [DonationController::class, 'show']);
             
             // Announcement system
             Route::get('/announcements', [AdminAnnouncementController::class, 'getAnnouncements']);

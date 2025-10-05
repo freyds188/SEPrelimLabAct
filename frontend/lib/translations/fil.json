@@ -53,6 +53,31 @@
       }
     }
   },
+  "donate": {
+    "supportUs": "Suportahan Kami",
+    "donateDescription": "Ang mga nakolektang donasyon ay mapupunta sa pagpapanatili ng tradisyonal na pamamaraan ng paghahabi sa Cordillera, pagsuporta sa pagsasanay ng mga artisan, at pagbibigay ng mga materyales at kagamitan sa aming mga komunidad.",
+    "donateNow": "Magbigay Ngayon",
+    "modal": {
+      "title": "Magbigay ng Donasyon",
+      "amount": "Halaga ng Donasyon (PHP)",
+      "amountPlaceholder": "Ilagay ang halaga (minimum ₱50)",
+      "donorName": "Ang Inyong Pangalan (Opsyonal)",
+      "donorNamePlaceholder": "Ilagay ang inyong pangalan",
+      "donorEmail": "Ang Inyong Email (Opsyonal)",
+      "donorEmailPlaceholder": "Ilagay ang inyong email",
+      "anonymous": "Magbigay nang hindi nagpapakilala",
+      "submit": "Ipasa ang Donasyon",
+      "cancel": "Kanselahin"
+    },
+    "success": {
+      "title": "Salamat!",
+      "message": "Ang inyong donasyon ay matagumpay na na-proseso. Salamat sa pagsuporta sa aming mga artisan!"
+    },
+    "error": {
+      "title": "May Mali",
+      "message": "May error sa pagproseso ng inyong donasyon. Pakisubukan ulit."
+    }
+  },
   "footer": {
     "description": "Sinusuportahan ang mga Filipino artisan at pangangalaga ng pamanang kultural sa pamamagitan ng kamay na ginawang tela.",
     "shop": {

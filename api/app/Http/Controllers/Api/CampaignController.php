@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Campaign;
+use App\Models\Donation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -74,6 +75,39 @@ class CampaignController extends Controller
             'message' => 'Campaign updated successfully',
             'data' => $campaign->fresh()->load(['donations']),
         ]);
+    }
+
+    /**
+     * Get public totals for impact display.
+     */
+    public function getTotals(): JsonResponse
+    {
+        try {
+            // Calculate total from actual completed donations
+            $totalIncome = Donation::where('status', 'completed')->sum('amount');
+            $donorsCount = Donation::where('status', 'completed')->count();
+
+            // Hardcoded values for now (can be made dynamic later)
+            $artisansSupported = 50;
+            $communitiesReached = 15;
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'total_income' => number_format($totalIncome, 2, '.', ''),
+                    'artisans_supported' => $artisansSupported,
+                    'communities_reached' => $communitiesReached,
+                    'donors_count' => $donorsCount,
+                ],
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve totals',
+                'error' => config('app.debug') ? $e->getMessage() : null,
+            ], 500);
+        }
     }
 
     /**

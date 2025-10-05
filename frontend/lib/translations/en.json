@@ -53,6 +53,31 @@
       }
     }
   },
+  "donate": {
+    "supportUs": "Support Us",
+    "donateDescription": "The collected donations will go towards preserving the traditional Cordillera weaving techniques, supporting artisan training, and providing materials and equipment to our communities.",
+    "donateNow": "Donate Now",
+    "modal": {
+      "title": "Make a Donation",
+      "amount": "Donation Amount (PHP)",
+      "amountPlaceholder": "Enter amount (minimum ₱50)",
+      "donorName": "Your Name (Optional)",
+      "donorNamePlaceholder": "Enter your name",
+      "donorEmail": "Your Email (Optional)",
+      "donorEmailPlaceholder": "Enter your email",
+      "anonymous": "Donate anonymously",
+      "submit": "Submit Donation",
+      "cancel": "Cancel"
+    },
+    "success": {
+      "title": "Thank You!",
+      "message": "Your donation has been successfully processed. Thank you for supporting our artisans!"
+    },
+    "error": {
+      "title": "Error",
+      "message": "There was an error processing your donation. Please try again."
+    }
+  },
   "footer": {
     "description": "Supporting Filipino artisans and preserving cultural heritage through handwoven textiles.",
     "shop": {

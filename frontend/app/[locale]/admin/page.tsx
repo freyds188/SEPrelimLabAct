@@ -401,6 +401,14 @@ export default function AdminDashboard() {
           />
           
           <QuickActionCard
+            title="Donations"
+            description="View and manage donation records"
+            icon={Heart}
+            href={`${base}/donations`}
+            color="bg-pink-500"
+          />
+          
+          <QuickActionCard
             title="Financial Reports"
             description="View financial analytics and reports"
             icon={BarChart3}

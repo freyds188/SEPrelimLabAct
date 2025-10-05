@@ -74,7 +74,8 @@ export default function ShopPage() {
         ...filters,
       });
 
-      const response = await fetch(`/api/v1/products?${params.toString()}`);
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/v1';
+      const response = await fetch(`${API_BASE_URL}/products?${params.toString()}`);
       const result = await response.json();
 
       if (result.success) {
@@ -98,7 +99,8 @@ export default function ShopPage() {
   // Fetch filter options
   const fetchFilters = async () => {
     try {
-      const response = await fetch('/api/v1/products/filters');
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/v1';
+      const response = await fetch(`${API_BASE_URL}/products/filters`);
       const result = await response.json();
 
       if (result.success) {

@@ -155,3 +155,6 @@ composer.phar
 # Local development
 *.local
 
+# Allow images folder inside frontend/public
+!frontend/public/images/
+!frontend/public/images/*

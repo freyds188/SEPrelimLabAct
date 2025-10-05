@@ -114,16 +114,14 @@ class AdminProductController extends Controller
                 'price' => 'required|numeric|min:0',
                 'stock_quantity' => 'required|integer|min:0',
                 'category' => 'required|string|max:100',
-                'tribe' => 'required|string|max:100',
-                'origin_region' => 'required|string|max:100',
-                'weaver_id' => 'required|exists:weavers,id',
+                'tribe' => 'nullable|string|max:100',
+                'origin_region' => 'nullable|string|max:100',
+                'weaver_id' => 'nullable|exists:weavers,id',
                 'is_active' => 'boolean',
-                'status' => 'in:draft,pending,approved,rejected',
+                'status' => 'in:active,inactive,out_of_stock',
                 'tags' => 'nullable|array',
                 'tags.*' => 'string|max:50',
-                'featured_image' => 'nullable|string',
-                'images' => 'nullable|array',
-                'images.*' => 'string',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
 
             if ($validator->fails()) {
@@ -134,7 +132,57 @@ class AdminProductController extends Controller
                 ], 422);
             }
 
-            $product = Product::create($request->all());
+            // Prepare product data
+            $productData = $request->only([
+                'name', 'description', 'price', 'stock_quantity', 'category',
+                'tribe', 'origin_region', 'weaver_id', 'is_active', 'status', 'tags'
+            ]);
+
+            // Set defaults for admin-created products
+            $productData['is_active'] = $productData['is_active'] ?? true;
+            $productData['status'] = $productData['status'] ?? 'active';
+            $productData['tribe'] = $productData['tribe'] ?? 'General';
+            $productData['origin_region'] = $productData['origin_region'] ?? 'Cordillera';
+            $productData['weaver_id'] = $productData['weaver_id'] ?? 1; // Default weaver or first available
+
+            // Create the product
+            $product = Product::create($productData);
+
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                try {
+                    $image = $request->file('image');
+                    
+                    // Validate image
+                    if (!$image->isValid()) {
+                        throw new \Exception('Invalid image file');
+                    }
+                    
+                    $imageName = time() . '_' . $product->id . '.' . $image->getClientOriginalExtension();
+                    $imagePath = $image->storeAs('products', $imageName, 'public');
+                    
+                    if (!$imagePath) {
+                        throw new \Exception('Failed to store image');
+                    }
+                    
+                    // Update product with image path
+                    $product->update(['main_image' => $imagePath]);
+                    
+                    \Log::info('Image uploaded successfully', [
+                        'product_id' => $product->id,
+                        'image_path' => $imagePath,
+                        'image_name' => $imageName
+                    ]);
+                    
+                } catch (\Exception $e) {
+                    \Log::error('Image upload failed', [
+                        'product_id' => $product->id,
+                        'error' => $e->getMessage()
+                    ]);
+                    
+                    // Continue without image - don't fail the entire product creation
+                }
+            }
 
             // Log the creation
             $this->logAuditAction(
@@ -177,7 +225,8 @@ class AdminProductController extends Controller
                 'origin_region' => 'sometimes|string|max:100',
                 'weaver_id' => 'sometimes|exists:weavers,id',
                 'is_active' => 'sometimes|boolean',
-                'status' => 'sometimes|in:draft,pending,approved,rejected',
+                // Align with products table enum
+                'status' => 'sometimes|in:active,inactive,out_of_stock',
                 'tags' => 'nullable|array',
                 'tags.*' => 'string|max:50',
                 'featured_image' => 'nullable|string',
@@ -194,7 +243,23 @@ class AdminProductController extends Controller
             }
 
             $oldValues = $product->toArray();
-            $product->update($request->all());
+            // Only allow updating known, safe fields
+            $updateData = $request->only([
+                'name',
+                'description',
+                'price',
+                'stock_quantity',
+                'category',
+                'tribe',
+                'origin_region',
+                'weaver_id',
+                'is_active',
+                'status',
+                'tags',
+                'featured_image',
+                'images',
+            ]);
+            $product->update($updateData);
             $newValues = $product->fresh()->toArray();
 
             // Log the update

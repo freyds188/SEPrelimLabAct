@@ -67,7 +67,8 @@ export default function ProductDetailPage() {
   const fetchProduct = async (slug: string) => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/v1/products/${slug}`);
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/v1';
+      const response = await fetch(`${API_BASE_URL}/products/${slug}`);
       const result = await response.json();
 
       if (result.success) {
@@ -85,7 +86,8 @@ export default function ProductDetailPage() {
 
   const fetchRelatedProducts = async (productId: number) => {
     try {
-      const response = await fetch(`/api/v1/products/${productId}/related`);
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/v1';
+      const response = await fetch(`${API_BASE_URL}/products/${productId}/related`);
       const result = await response.json();
 
       if (result.success) {

@@ -21,6 +21,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_active',
+        'banned_at',
+        'ban_reason',
+        'banned_until',
     ];
 
     /**
@@ -40,6 +44,8 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'banned_at' => 'datetime',
+        'banned_until' => 'datetime',
     ];
 
     /**
@@ -67,11 +73,41 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the admin user record for this user.
+     */
+    public function adminUser()
+    {
+        return $this->hasOne(AdminUser::class);
+    }
+
+    /**
      * Check if user is a weaver.
      */
     public function isWeaver(): bool
     {
         return $this->weaver()->exists();
+    }
+
+    /**
+     * Check if user is banned.
+     */
+    public function isBanned(): bool
+    {
+        // User is not banned if they are active and have no ban record
+        if ($this->is_active && !$this->banned_at) {
+            return false;
+        }
+
+        // User is banned if they are inactive OR have a ban record
+        if (!$this->is_active || $this->banned_at) {
+            // Check if it's a temporary ban that has expired
+            if ($this->banned_until && $this->banned_until->isPast()) {
+                return false;
+            }
+            return true;
+        }
+
+        return false;
     }
 
     /**

@@ -16,7 +16,9 @@ import {
   TrendingUp,
   DollarSign,
   BarChart3,
-  Upload
+  Upload,
+  X,
+  Image as ImageIcon
 } from 'lucide-react';
 import toast from 'react-hot-toast'
 import { useAdminHeader } from '@/components/admin/header-context'
@@ -68,8 +70,9 @@ export default function AdminProducts() {
   const [sortOrder, setSortOrder] = useState('desc');
   const [selectedProducts, setSelectedProducts] = useState<number[]>([]);
   const [showFilters, setShowFilters] = useState(false);
-  const [showBulkUpload, setShowBulkUpload] = useState(false);
-  const [bulkUploadFile, setBulkUploadFile] = useState<File | null>(null);
+  const [showAddProduct, setShowAddProduct] = useState(false);
+  const [showEditProduct, setShowEditProduct] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const { setTitle, setSubtitle, setActions } = useAdminHeader();
 
   useEffect(() => {
@@ -77,21 +80,10 @@ export default function AdminProducts() {
     setSubtitle('Manage products, inventory, and approvals');
     setActions(
       <div className="flex items-center space-x-3">
-        <button
-          onClick={() => fetchProducts()}
-          className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+        <button 
+          onClick={() => setShowAddProduct(true)}
+          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
         >
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
-        </button>
-        <button
-          onClick={() => setShowBulkUpload(true)}
-          className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-        >
-          <Upload className="h-4 w-4 mr-2" />
-          Bulk Upload
-        </button>
-        <button className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
           <Plus className="h-4 w-4 mr-2" />
           Add Product
         </button>
@@ -256,7 +248,11 @@ export default function AdminProducts() {
   };
 
   const handleDelete = async (productId: number) => {
-    if (!confirm('Delete this product? This cannot be undone.')) return;
+    const product = products.find(p => p.id === productId);
+    const productName = product ? product.name : 'this product';
+    
+    if (!confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) return;
+    
     try {
       const response = await fetch(`${API_BASE_URL}/admin/products/${productId}`, {
         method: 'DELETE',
@@ -265,55 +261,59 @@ export default function AdminProducts() {
           'Content-Type': 'application/json',
         },
       });
+      
       if (response.ok) {
-        toast.success('Product deleted');
+        toast.success(`Product "${productName}" deleted successfully`);
         fetchProducts();
       } else {
-        const err = await response.json().catch(() => ({}));
-        toast.error(err?.message || 'Failed to delete');
+        const errorData = await response.json();
+        toast.error(`Failed to delete product: ${errorData.message || 'Unknown error'}`);
       }
-    } catch (e) {
-      console.error('Delete failed', e);
-      toast.error('Delete failed');
+    } catch (error) {
+      console.error('Delete failed:', error);
+      toast.error('Failed to delete product');
     }
   };
 
-  const handleEdit = async (product: Product) => {
-    const newName = prompt('Edit product name', product.name);
-    if (newName === null) return;
-    const newPrice = prompt('Edit price', product.price.toString());
-    if (newPrice === null) return;
-    const newStock = prompt('Edit stock quantity', product.stock_quantity.toString());
-    if (newStock === null) return;
-    const newDescription = prompt('Edit description', product.description || '');
-    if (newDescription === null) return;
+  const handleEdit = (product: Product) => {
+    setEditingProduct(product);
+    setShowEditProduct(true);
+  };
 
+  const handleUpdateProduct = async (productData: any) => {
+    if (!editingProduct) return;
+    
     try {
-      const response = await fetch(`${API_BASE_URL}/products/${product.id}`, {
+      const response = await fetch(`${API_BASE_URL}/admin/products/${editingProduct.id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: newName,
-          price: parseFloat(newPrice),
-          stock_quantity: parseInt(newStock),
-          description: newDescription,
+          name: productData.name,
+          description: productData.description,
+          price: productData.price,
+          stock_quantity: productData.stock_quantity,
+          category: productData.category,
+          status: productData.status,
         }),
       });
+
       if (response.ok) {
-        toast.success('Product updated');
+        toast.success('Product updated successfully');
+        setShowEditProduct(false);
+        setEditingProduct(null);
         fetchProducts();
       } else {
-        const err = await response.json().catch(() => ({}));
-        toast.error(err?.message || 'Failed to update');
+        const errorData = await response.json();
+        toast.error(`Failed to update product: ${errorData.message}`);
       }
-    } catch (e) {
-      console.error('Update failed', e);
-      toast.error('Update failed');
+    } catch (error) {
+      console.error('Error updating product:', error);
+      toast.error('Failed to update product');
     }
-  }
+  };
 
   const handleBulkAction = async (action: string) => {
     if (selectedProducts.length === 0) {
@@ -336,17 +336,25 @@ export default function AdminProducts() {
     }
   };
 
-  const handleBulkUpload = async () => {
-    if (!bulkUploadFile) {
-      toast.error('Please select a file to upload');
-      return;
-    }
-
+  const handleAddProduct = async (productData: any) => {
     try {
+      console.log('Product data:', productData);
+      console.log('Image file:', productData.image);
+      
       const formData = new FormData();
-      formData.append('file', bulkUploadFile);
+      formData.append('name', productData.name);
+      formData.append('description', productData.description);
+      formData.append('price', productData.price.toString());
+      formData.append('stock_quantity', productData.stock_quantity.toString());
+      formData.append('category', productData.category);
+      if (productData.image) {
+        console.log('Adding image to FormData:', productData.image.name, productData.image.size);
+        formData.append('image', productData.image);
+      } else {
+        console.log('No image file provided');
+      }
 
-      const response = await fetch(`${API_BASE_URL}/admin/products/bulk-upload`, {
+      const response = await fetch(`${API_BASE_URL}/admin/products`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
@@ -355,18 +363,16 @@ export default function AdminProducts() {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        toast.success(`Successfully uploaded ${data.data.uploaded_count} products`);
-        setShowBulkUpload(false);
-        setBulkUploadFile(null);
+        toast.success('Product added successfully');
+        setShowAddProduct(false);
         fetchProducts();
       } else {
         const errorData = await response.json();
-        toast.error(`Failed to upload products: ${errorData.message}`);
+        toast.error(`Failed to add product: ${errorData.message}`);
       }
     } catch (error) {
-      console.error('Error uploading products:', error);
-      toast.error('Failed to upload products');
+      console.error('Error adding product:', error);
+      toast.error('Failed to add product');
     }
   };
 
@@ -788,47 +794,470 @@ export default function AdminProducts() {
         )}
       </div>
 
-      {/* Bulk Upload Modal */}
-      {showBulkUpload && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Bulk Upload Products</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Upload CSV/Excel File
-                  </label>
-                  <input
-                    type="file"
-                    accept=".csv,.xlsx,.xls"
-                    onChange={(e) => setBulkUploadFile(e.target.files?.[0] || null)}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+      {/* Add Product Modal */}
+      {showAddProduct && (
+        <AddProductModal 
+          onClose={() => setShowAddProduct(false)}
+          onSubmit={handleAddProduct}
+        />
+      )}
+
+      {/* Edit Product Modal */}
+      {showEditProduct && editingProduct && (
+        <EditProductModal 
+          product={editingProduct}
+          onClose={() => {
+            setShowEditProduct(false);
+            setEditingProduct(null);
+          }}
+          onSubmit={handleUpdateProduct}
+        />
+      )}
+    </div>
+  );
+}
+
+// Add Product Modal Component
+interface AddProductModalProps {
+  onClose: () => void;
+  onSubmit: (data: any) => void;
+}
+
+function AddProductModal({ onClose, onSubmit }: AddProductModalProps) {
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    price: '',
+    stock_quantity: '',
+    category: '',
+    image: null as File | null
+  });
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    console.log('File selected:', file);
+    if (file) {
+      console.log('File details:', {
+        name: file.name,
+        size: file.size,
+        type: file.type
+      });
+      
+      setFormData(prev => ({
+        ...prev,
+        image: file
+      }));
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validation
+    if (!formData.name || !formData.description || !formData.price || !formData.stock_quantity || !formData.category) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    if (parseFloat(formData.price) <= 0) {
+      toast.error('Price must be greater than 0');
+      return;
+    }
+
+    if (parseInt(formData.stock_quantity) < 0) {
+      toast.error('Stock quantity cannot be negative');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await onSubmit({
+        ...formData,
+        price: parseFloat(formData.price),
+        stock_quantity: parseInt(formData.stock_quantity)
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div className="relative top-10 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-medium text-gray-900">Add New Product</h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <X className="h-6 w-6" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Product Image */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Product Image
+            </label>
+            <div className="flex items-center space-x-4">
+              <div className="flex-shrink-0">
+                {imagePreview ? (
+                  <img
+                    className="h-20 w-20 rounded-lg object-cover"
+                    src={imagePreview}
+                    alt="Product preview"
                   />
-                </div>
-                <div className="flex items-center justify-end space-x-3">
-                  <button
-                    onClick={() => {
-                      setShowBulkUpload(false);
-                      setBulkUploadFile(null);
-                    }}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleBulkUpload}
-                    disabled={!bulkUploadFile}
-                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
-                  >
-                    Upload
-                  </button>
-                </div>
+                ) : (
+                  <div className="h-20 w-20 rounded-lg bg-gray-200 flex items-center justify-center">
+                    <ImageIcon className="h-8 w-8 text-gray-400" />
+                  </div>
+                )}
+              </div>
+              <div className="flex-1">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Upload a product image (JPG, PNG, GIF)
+                </p>
               </div>
             </div>
           </div>
+
+          {/* Product Name */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Product Name *
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              placeholder="Enter product name"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Description *
+            </label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              placeholder="Enter product description"
+              rows={3}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+          </div>
+
+          {/* Price and Stock */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Price (₱) *
+              </label>
+              <input
+                type="number"
+                name="price"
+                value={formData.price}
+                onChange={handleInputChange}
+                placeholder="0.00"
+                step="0.01"
+                min="0"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Stock Quantity *
+              </label>
+              <input
+                type="number"
+                name="stock_quantity"
+                value={formData.stock_quantity}
+                onChange={handleInputChange}
+                placeholder="0"
+                min="0"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Category */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Category *
+            </label>
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleInputChange}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            >
+              <option value="">Select a category</option>
+              <option value="textiles">Textiles</option>
+              <option value="accessories">Accessories</option>
+              <option value="home_decor">Home Decor</option>
+              <option value="clothing">Clothing</option>
+              <option value="bags">Bags</option>
+              <option value="jewelry">Jewelry</option>
+              <option value="decorative_items">Decorative Items</option>
+              <option value="hats">Hats</option>
+            </select>
+          </div>
+
+          {/* Form Actions */}
+          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+            >
+              {isSubmitting ? 'Adding...' : 'Add Product'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// Edit Product Modal Component
+interface EditProductModalProps {
+  product: Product;
+  onClose: () => void;
+  onSubmit: (data: any) => void;
+}
+
+function EditProductModal({ product, onClose, onSubmit }: EditProductModalProps) {
+  const [formData, setFormData] = useState({
+    name: product.name,
+    description: product.description || '',
+    price: product.price.toString(),
+    stock_quantity: product.stock_quantity.toString(),
+    category: product.category,
+    status: product.status
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validation
+    if (!formData.name || !formData.description || !formData.price || !formData.stock_quantity || !formData.category) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    if (parseFloat(formData.price) <= 0) {
+      toast.error('Price must be greater than 0');
+      return;
+    }
+
+    if (parseInt(formData.stock_quantity) < 0) {
+      toast.error('Stock quantity cannot be negative');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await onSubmit({
+        ...formData,
+        price: parseFloat(formData.price),
+        stock_quantity: parseInt(formData.stock_quantity)
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div className="relative top-10 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-medium text-gray-900">Edit Product</h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <X className="h-6 w-6" />
+          </button>
         </div>
-      )}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Product Name */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Product Name *
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              placeholder="Enter product name"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Description *
+            </label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              placeholder="Enter product description"
+              rows={3}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+          </div>
+
+          {/* Price and Stock */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Price (₱) *
+              </label>
+              <input
+                type="number"
+                name="price"
+                value={formData.price}
+                onChange={handleInputChange}
+                placeholder="0.00"
+                step="0.01"
+                min="0"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Stock Quantity *
+              </label>
+              <input
+                type="number"
+                name="stock_quantity"
+                value={formData.stock_quantity}
+                onChange={handleInputChange}
+                placeholder="0"
+                min="0"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Category and Status */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Category *
+              </label>
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                required
+              >
+                <option value="">Select a category</option>
+                <option value="textiles">Textiles</option>
+                <option value="accessories">Accessories</option>
+                <option value="home_decor">Home Decor</option>
+                <option value="clothing">Clothing</option>
+                <option value="bags">Bags</option>
+                <option value="jewelry">Jewelry</option>
+                <option value="decorative_items">Decorative Items</option>
+                <option value="hats">Hats</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Status *
+              </label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                required
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="out_of_stock">Out of Stock</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Form Actions */}
+          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+            >
+              {isSubmitting ? 'Updating...' : 'Update Product'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
             GlossaryTermSeeder::class,
             StorySeeder::class,
+            CampaignSeeder::class,
         ]);
     }
 }
