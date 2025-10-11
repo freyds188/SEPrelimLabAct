@@ -13,17 +13,17 @@ class GlossaryTermSeeder extends Seeder
     public function run(): void
     {
         // Create featured glossary terms
-        GlossaryTerm::factory(5)
+        GlossaryTerm::factory(3)
             ->featured()
             ->create();
 
         // Create regular glossary terms
-        GlossaryTerm::factory(20)
+        GlossaryTerm::factory(5)
             ->published()
             ->create();
 
         // Create some draft terms
-        GlossaryTerm::factory(5)
+        GlossaryTerm::factory(2)
             ->state(['status' => 'draft'])
             ->create();
     }

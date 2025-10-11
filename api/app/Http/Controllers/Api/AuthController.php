@@ -22,6 +22,8 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
+            // frontend requires agreement; accept true/"true"/1
+            'agreeTerms' => 'required|in:true,1,True,TRUE',
         ]);
 
         if ($validator->fails()) {

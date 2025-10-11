@@ -11,23 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Create order_items table
-        Schema::create('order_items', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('order_id')->constrained()->onDelete('cascade');
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->foreignId('weaver_id')->constrained()->onDelete('cascade');
-            $table->integer('quantity');
-            $table->decimal('unit_price', 10, 2);
-            $table->decimal('total_amount', 10, 2);
-            $table->json('product_data')->nullable(); // Store product snapshot
-            $table->timestamps();
-            
-            $table->index(['order_id', 'product_id']);
-            $table->index(['weaver_id', 'order_id']);
-        });
-
         // Drop and recreate orders table for SQLite compatibility
+        // For SQLite, we need to drop the order_items table first since it has foreign key constraints
+        Schema::dropIfExists('order_items');
         Schema::dropIfExists('orders');
         
         Schema::create('orders', function (Blueprint $table) {
@@ -68,6 +54,22 @@ return new class extends Migration
             $table->index(['customer_email', 'status']);
             $table->index('order_number');
             $table->index('payment_status');
+        });
+
+        // Create order_items table after orders table is created
+        Schema::create('order_items', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('order_id')->constrained()->onDelete('cascade');
+            $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            $table->foreignId('weaver_id')->constrained()->onDelete('cascade');
+            $table->integer('quantity');
+            $table->decimal('unit_price', 10, 2);
+            $table->decimal('total_amount', 10, 2);
+            $table->json('product_data')->nullable(); // Store product snapshot
+            $table->timestamps();
+            
+            $table->index(['order_id', 'product_id']);
+            $table->index(['weaver_id', 'order_id']);
         });
     }
 

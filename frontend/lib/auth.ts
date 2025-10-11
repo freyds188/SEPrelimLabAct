@@ -27,6 +27,7 @@ export interface RegisterCredentials {
   email: string;
   password: string;
   password_confirmation: string;
+  agreeTerms: boolean;
 }
 
 class AuthService {
