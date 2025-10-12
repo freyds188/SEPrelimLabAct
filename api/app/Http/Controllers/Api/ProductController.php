@@ -139,6 +139,7 @@ class ProductController extends Controller
         $perPage = min($request->get('per_page', 15), 50); // Max 50 per page
         $products = $query->paginate($perPage);
 
+
         return response()->json([
             'success' => true,
             'data' => $products->items(),
@@ -158,12 +159,73 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request): JsonResponse
     {
-        $product = Product::create($request->validated());
+        $user = $request->user();
+        
+        // Check if user is a seller
+        if (!$user->isSeller() && !$user->isAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only sellers can create products',
+            ], 403);
+        }
+
+        $data = $request->validated();
+        
+        // Debug logging
+        \Log::info('Product creation request data:', $data);
+        
+        // Set seller_id and verification_status for new products
+        $data['seller_id'] = $user->id;
+        $data['verification_status'] = 'pending';
+        
+        // If user is admin, auto-approve
+        if ($user->isAdmin()) {
+            $data['verification_status'] = 'approved';
+            $data['status'] = 'active';
+        }
+
+        // Handle images array
+        $images = $data['images'] ?? [];
+        $mainImage = $data['main_image'] ?? null;
+        
+        // Remove images from data array before creating product
+        unset($data['images']);
+        unset($data['main_image']);
+
+        try {
+            $product = Product::create($data);
+            \Log::info('Product created successfully with ID:', [$product->id]);
+        } catch (\Exception $e) {
+            \Log::error('Error creating product:', [
+                'message' => $e->getMessage(),
+                'data' => $data,
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
+
+        // Handle image storage
+        if (!empty($images)) {
+            $imagesArray = is_string($images) ? json_decode($images, true) : $images;
+            
+            if (is_array($imagesArray)) {
+                // Store images as JSON in the images field
+                $product->update(['images' => json_encode($imagesArray)]);
+                
+                // Set main image
+                if ($mainImage && in_array($mainImage, $imagesArray)) {
+                    $product->update(['main_image' => $mainImage]);
+                } elseif (!empty($imagesArray)) {
+                    // If no main image specified, use the first one
+                    $product->update(['main_image' => $imagesArray[0]]);
+                }
+            }
+        }
 
         return response()->json([
             'success' => true,
-            'message' => 'Product created successfully',
-            'data' => $product->load(['weaver', 'weaver.user', 'media']),
+            'message' => $user->isAdmin() ? 'Product created successfully' : 'Product submitted for approval',
+            'data' => $product->load(['weaver', 'seller', 'media']),
         ], 201);
     }
 
@@ -299,6 +361,149 @@ class ProductController extends Controller
         return response()->json([
             'success' => true,
             'data' => $related,
+        ]);
+    }
+
+    /**
+     * Get pending products (for admin approval).
+     */
+    public function pending(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        
+        // Check if user is admin
+        if (!$user->isAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized. Admin access required.',
+            ], 403);
+        }
+
+        $products = Product::pending()
+            ->with(['seller', 'weaver', 'media'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
+        return response()->json([
+            'success' => true,
+            'data' => $products->items(),
+            'meta' => [
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage(),
+                'per_page' => $products->perPage(),
+                'total' => $products->total(),
+            ],
+        ]);
+    }
+
+    /**
+     * Approve a product.
+     */
+    public function approve(Request $request, Product $product): JsonResponse
+    {
+        $user = $request->user();
+        
+        // Check if user is admin
+        if (!$user->isAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized. Admin access required.',
+            ], 403);
+        }
+
+        if ($product->verification_status !== 'pending') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Product is not pending approval',
+            ], 400);
+        }
+
+        $product->update([
+            'verification_status' => 'approved',
+            'status' => 'active',
+            'verified_by' => $user->id,
+            'verified_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product approved successfully',
+            'data' => $product->fresh()->load(['seller', 'weaver', 'verifier', 'media']),
+        ]);
+    }
+
+    /**
+     * Reject a product.
+     */
+    public function reject(Request $request, Product $product): JsonResponse
+    {
+        $user = $request->user();
+        
+        // Check if user is admin
+        if (!$user->isAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized. Admin access required.',
+            ], 403);
+        }
+
+        if ($product->verification_status !== 'pending') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Product is not pending approval',
+            ], 400);
+        }
+
+        $request->validate([
+            'reason' => 'required|string|max:500',
+        ]);
+
+        $product->update([
+            'verification_status' => 'rejected',
+            'status' => 'inactive',
+            'rejected_reason' => $request->reason,
+            'verified_by' => $user->id,
+            'verified_at' => now(),
+        ]);
+
+        // Optionally delete the product after rejection
+        // $product->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product rejected successfully',
+            'data' => $product->fresh()->load(['seller', 'weaver', 'verifier', 'media']),
+        ]);
+    }
+
+    /**
+     * Get products created by the authenticated seller.
+     */
+    public function myProducts(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        
+        if (!$user->isSeller()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only sellers can access this endpoint',
+            ], 403);
+        }
+
+        $products = Product::where('seller_id', $user->id)
+            ->with(['weaver', 'media'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
+        return response()->json([
+            'success' => true,
+            'data' => $products->items(),
+            'meta' => [
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage(),
+                'per_page' => $products->perPage(),
+                'total' => $products->total(),
+            ],
         ]);
     }
 }

@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
         'is_active',
         'banned_at',
         'ban_reason',
@@ -81,11 +82,35 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the products created by the user (if they are a seller).
+     */
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'seller_id');
+    }
+
+    /**
      * Check if user is a weaver.
      */
     public function isWeaver(): bool
     {
         return $this->weaver()->exists();
+    }
+
+    /**
+     * Check if user is a seller.
+     */
+    public function isSeller(): bool
+    {
+        return $this->role === 'seller';
+    }
+
+    /**
+     * Check if user is an admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin' || $this->adminUser()->exists();
     }
 
     /**

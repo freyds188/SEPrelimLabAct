@@ -1,10 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, Grid, List, Filter as FilterIcon, ShoppingBag, Sparkles, Star, TrendingUp } from 'lucide-react';
+import { Search, Grid, List, Filter as FilterIcon, ShoppingBag, Sparkles, Star, TrendingUp, Plus } from 'lucide-react';
 import ProductCard from '../../../components/ui/ProductCard';
 import ProductFilters from '../../../components/ui/ProductFilters';
 import toast from 'react-hot-toast';
+import { useAuth } from '@/lib/auth-context';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 
 interface Product {
   id: number;
@@ -63,6 +66,15 @@ export default function ShopPage() {
     per_page: 15,
     total: 0,
   });
+  const { user } = useAuth();
+  const router = useRouter();
+
+  // Redirect sellers to their dashboard
+  useEffect(() => {
+    if (user && user.role === 'seller') {
+      router.push('/seller/dashboard');
+    }
+  }, [user, router]);
 
   // Fetch products
   const fetchProducts = async (page = 1, filters = {}) => {
@@ -180,6 +192,19 @@ export default function ShopPage() {
             <p className="body text-balance max-w-3xl mx-auto text-neutral-700 leading-relaxed mb-8">
               Discover authentic Filipino handwoven textiles crafted by skilled artisans from various tribes and regions.
             </p>
+            
+            {/* Seller Create Product Button */}
+            {user && user.role === 'seller' && (
+              <div className="flex justify-center mb-6">
+                <Button
+                  onClick={() => router.push('/en/shop/create')}
+                  className="bg-gradient-to-r from-brand-600 to-accent-600 hover:from-brand-700 hover:to-accent-700 text-white px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+                >
+                  <Plus className="w-5 h-5" />
+                  Create New Product
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Enhanced Search Bar */}

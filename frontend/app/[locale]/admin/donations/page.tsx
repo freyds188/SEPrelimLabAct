@@ -74,7 +74,7 @@ export default function AdminDonationsPage() {
         params.append('is_anonymous', anonymousFilter === 'anonymous' ? 'true' : 'false')
       }
 
-      const response = await fetch(`/api/v1/admin/donations?${params}`, {
+      const response = await fetch(`http://127.0.0.1:8000/api/v1/admin/donations?${params}`, {
         headers: {
           'Authorization': `Bearer ${adminToken}`,
           'Content-Type': 'application/json',

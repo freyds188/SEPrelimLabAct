@@ -77,7 +77,7 @@ export default function AdminSettings() {
   const fetchAdminUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/v1/admin/users?role=admin', {
+      const response = await fetch('http://127.0.0.1:8000/api/v1/admin/users?role=admin', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
           'Content-Type': 'application/json',
@@ -98,7 +98,7 @@ export default function AdminSettings() {
   const fetchSystemHealth = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/v1/admin/dashboard/metrics', {
+      const response = await fetch('http://127.0.0.1:8000/api/v1/admin/dashboard/metrics', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
           'Content-Type': 'application/json',
@@ -132,7 +132,7 @@ export default function AdminSettings() {
   const handleAddAdminUser = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/v1/admin/users', {
+      const response = await fetch('http://127.0.0.1:8000/api/v1/admin/users', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
@@ -169,7 +169,7 @@ export default function AdminSettings() {
 
     try {
       setLoading(true);
-      const response = await fetch(`/api/v1/admin/users/${userId}`, {
+      const response = await fetch(`http://127.0.0.1:8000/api/v1/admin/users/${userId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,

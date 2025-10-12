@@ -336,6 +336,15 @@ class AdminProductController extends Controller
     public function approveProduct(Request $request, Product $product): JsonResponse
     {
         try {
+            // Check if product exists
+            if (!$product) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product not found',
+                ], 404);
+            }
+
+            // Check if already approved
             if ($product->status === 'approved') {
                 return response()->json([
                     'success' => false,
@@ -343,23 +352,19 @@ class AdminProductController extends Controller
                 ], 400);
             }
 
-            $oldValues = $product->toArray();
+            // Get admin user ID safely
+            $adminUserId = null;
+            $adminUser = $request->get('admin_user');
+            if ($adminUser && isset($adminUser->id)) {
+                $adminUserId = $adminUser->id;
+            }
+
+            // Update product status
             $product->update([
                 'status' => 'approved',
-                'approved_at' => now(),
-                'approved_by' => $request->get('admin_user')->id ?? null,
+                'verified_at' => now(),
+                'verified_by' => $adminUserId,
             ]);
-            $newValues = $product->fresh()->toArray();
-
-            // Log the approval
-            $this->logAuditAction(
-                'approve',
-                'Product',
-                $product->id,
-                $oldValues,
-                $newValues,
-                'Product approved by admin'
-            );
 
             return response()->json([
                 'success' => true,
@@ -371,6 +376,60 @@ class AdminProductController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to approve product',
+                'error' => config('app.debug') ? $e->getMessage() : null,
+            ], 500);
+        }
+    }
+
+    /**
+     * Reject product
+     */
+    public function rejectProduct(Request $request, Product $product): JsonResponse
+    {
+        try {
+            // Check if product exists
+            if (!$product) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product not found',
+                ], 404);
+            }
+
+            // Check if already rejected
+            if ($product->status === 'rejected') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product is already rejected',
+                ], 400);
+            }
+
+            $reason = $request->input('reason', 'No reason provided');
+
+            // Get admin user ID safely
+            $adminUserId = null;
+            $adminUser = $request->get('admin_user');
+            if ($adminUser && isset($adminUser->id)) {
+                $adminUserId = $adminUser->id;
+            }
+
+            // Update product status
+            $product->update([
+                'status' => 'rejected',
+                'reviewed_at' => now(),
+                'reviewed_by' => $adminUserId,
+                'rejected_reason' => $reason,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Product rejected successfully',
+                'data' => $product->fresh(),
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to reject product',
                 'error' => config('app.debug') ? $e->getMessage() : null,
             ], 500);
         }

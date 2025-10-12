@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { getTranslations, type Locale } from '@/lib/i18n'
 import { Heart, Users, Award, Target } from 'lucide-react'
+import { DonationReceipt } from '@/components/donation-receipt'
 
 interface LocaleDonatePageProps {
   params: {
@@ -40,6 +41,8 @@ export default function LocaleDonatePage({ params }: LocaleDonatePageProps) {
   const t = getTranslations(params.locale)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showReceipt, setShowReceipt] = useState(false)
+  const [donationData, setDonationData] = useState<any>(null)
   const [impactStats, setImpactStats] = useState<ImpactStats>({
     totalIncome: 500000,
     artisansSupported: 50,
@@ -110,12 +113,26 @@ export default function LocaleDonatePage({ params }: LocaleDonatePageProps) {
       if (response.ok) {
         const result = await response.json()
         
+        // Prepare donation data for receipt
+        const receiptData = {
+          id: result.data?.id || Date.now().toString(),
+          amount: data.amount,
+          donorName: data.donorName,
+          donorEmail: data.donorEmail,
+          isAnonymous: data.isAnonymous,
+          campaignId: 1,
+          transactionId: result.data?.transaction_id || `TXN-${Date.now()}`,
+          paidAt: new Date().toISOString(),
+          status: 'completed'
+        }
+        
         // Close modal and reset form
         setIsModalOpen(false)
         reset()
         
-        // Show success toast
-        toast.success(t.donate.success.message)
+        // Show receipt instead of toast
+        setDonationData(receiptData)
+        setShowReceipt(true)
         
         // Refresh impact stats
         await fetchImpactStats()
@@ -325,6 +342,36 @@ export default function LocaleDonatePage({ params }: LocaleDonatePageProps) {
           </div>
         </div>
       </div>
+
+      {/* Donation Receipt Modal */}
+      {showReceipt && donationData && (
+        <Dialog open={showReceipt} onOpenChange={setShowReceipt}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DonationReceipt
+              donation={donationData}
+              campaign={{
+                id: 1,
+                title: params.locale === 'fil' 
+                  ? 'Pagpreserba ng Tradisyonal na Paghahabi ng Cordillera'
+                  : 'Preserving Traditional Cordillera Weaving',
+                description: params.locale === 'fil'
+                  ? 'Suportahan ang mga artisan ng Cordillera sa pagpreserba ng kanilang tradisyonal na paghahabi at kultura.'
+                  : 'Support Cordillera artisans in preserving their traditional weaving and culture.'
+              }}
+              locale={params.locale}
+              onClose={() => setShowReceipt(false)}
+              onDownload={() => {
+                // Implement download functionality
+                console.log('Download receipt')
+              }}
+              onShare={() => {
+                // Implement share functionality
+                console.log('Share receipt')
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   )
 }

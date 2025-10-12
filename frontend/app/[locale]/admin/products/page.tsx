@@ -73,6 +73,8 @@ export default function AdminProducts() {
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [showEditProduct, setShowEditProduct] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [showPendingModal, setShowPendingModal] = useState(false);
+  const [pendingProducts, setPendingProducts] = useState<Product[]>([]);
   const { setTitle, setSubtitle, setActions } = useAdminHeader();
 
   useEffect(() => {
@@ -186,6 +188,34 @@ export default function AdminProducts() {
     }
   };
 
+  const fetchPendingProducts = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/products?status=pending`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const json = await response.json();
+        const items = Array.isArray(json?.data?.data) ? json.data.data : Array.isArray(json?.data) ? json.data : [];
+        setPendingProducts(items);
+      } else {
+        // Fallback to public products with pending status
+        const publicResponse = await fetch(`${API_BASE_URL}/products?status=pending`);
+        if (publicResponse.ok) {
+          const publicJson = await publicResponse.json();
+          const publicItems = Array.isArray(publicJson?.data) ? publicJson.data : [];
+          setPendingProducts(publicItems);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching pending products:', error);
+      setPendingProducts([]);
+    }
+  };
+
   const handleSearch = (value: string) => {
     setSearchTerm(value);
     setCurrentPage(1);
@@ -280,6 +310,78 @@ export default function AdminProducts() {
     setShowEditProduct(true);
   };
 
+  const handleApproveProduct = async (productId: number) => {
+    try {
+      const token = localStorage.getItem('admin_token');
+      const url = `${API_BASE_URL}/admin/products/${productId}/approve`;
+      console.log('Approving product with URL:', url);
+      console.log('API_BASE_URL:', API_BASE_URL);
+      console.log('Product ID:', productId);
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success('Product approved successfully!');
+        fetchProducts();
+        fetchStats();
+        fetchPendingProducts(); // Refresh pending products list
+      } else {
+        toast.error(result.message || 'Failed to approve product');
+      }
+    } catch (error) {
+      console.error('Error approving product:', error);
+      toast.error('Failed to approve product');
+    }
+  };
+
+  const handleRejectProduct = async (productId: number) => {
+    const reason = prompt('Please provide a reason for rejection:');
+    
+    if (!reason) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('admin_token');
+      const url = `${API_BASE_URL}/admin/products/${productId}/reject`;
+      console.log('Rejecting product with URL:', url);
+      console.log('API_BASE_URL:', API_BASE_URL);
+      console.log('Product ID:', productId);
+      console.log('Reason:', reason);
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ reason }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success('Product rejected successfully!');
+        fetchProducts();
+        fetchStats();
+        fetchPendingProducts(); // Refresh pending products list
+      } else {
+        toast.error(result.message || 'Failed to reject product');
+      }
+    } catch (error) {
+      console.error('Error rejecting product:', error);
+      toast.error('Failed to reject product');
+    }
+  };
+
   const handleUpdateProduct = async (productData: any) => {
     if (!editingProduct) return;
     
@@ -334,6 +436,11 @@ export default function AdminProducts() {
     } catch (error) {
       console.error(`Error performing bulk ${action}:`, error);
     }
+  };
+
+  const handlePendingCardClick = async () => {
+    setShowPendingModal(true);
+    await fetchPendingProducts();
   };
 
   const handleAddProduct = async (productData: any) => {
@@ -441,7 +548,10 @@ export default function AdminProducts() {
           <div className="text-2xl font-bold text-green-600">{approvedCount}</div>
           <div className="text-sm text-gray-500">Approved Products</div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div 
+          className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 cursor-pointer hover:shadow-md transition-shadow"
+          onClick={handlePendingCardClick}
+        >
           <div className="text-2xl font-bold text-yellow-600">{pendingCount}</div>
           <div className="text-sm text-gray-500">Pending Approval</div>
         </div>
@@ -715,20 +825,41 @@ export default function AdminProducts() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => handleEdit(product)}
-                        className="text-green-600 hover:text-green-900"
-                        title="Edit Product"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        className="text-red-600 hover:text-red-900"
-                        title="Delete Product"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      {product.status === 'pending' ? (
+                        <>
+                          <button
+                            onClick={() => handleApproveProduct(product.id)}
+                            className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
+                            title="Approve Product"
+                          >
+                            <CheckCircle className="h-5 w-5" />
+                          </button>
+                          <button
+                            onClick={() => handleRejectProduct(product.id)}
+                            className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                            title="Reject Product"
+                          >
+                            <XCircle className="h-5 w-5" />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => handleEdit(product)}
+                            className="text-green-600 hover:text-green-900"
+                            title="Edit Product"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(product.id)}
+                            className="text-red-600 hover:text-red-900"
+                            title="Delete Product"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -811,6 +942,17 @@ export default function AdminProducts() {
             setEditingProduct(null);
           }}
           onSubmit={handleUpdateProduct}
+        />
+      )}
+
+      {/* Pending Products Modal */}
+      {showPendingModal && (
+        <PendingProductsModal
+          products={pendingProducts}
+          onClose={() => setShowPendingModal(false)}
+          onApprove={handleApproveProduct}
+          onReject={handleRejectProduct}
+          onRefresh={fetchPendingProducts}
         />
       )}
     </div>
@@ -1262,4 +1404,163 @@ function EditProductModal({ product, onClose, onSubmit }: EditProductModalProps)
   );
 }
 
+// Pending Products Modal Component
+interface PendingProductsModalProps {
+  products: Product[];
+  onClose: () => void;
+  onApprove: (productId: number) => void;
+  onReject: (productId: number) => void;
+  onRefresh: () => void;
+}
+
+function PendingProductsModal({ products, onClose, onApprove, onReject, onRefresh }: PendingProductsModalProps) {
+  const [loading, setLoading] = useState(false);
+
+  const handleApprove = async (productId: number) => {
+    setLoading(true);
+    try {
+      await onApprove(productId);
+      onRefresh(); // Refresh the list after approval
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReject = async (productId: number) => {
+    setLoading(true);
+    try {
+      await onReject(productId);
+      onRefresh(); // Refresh the list after rejection
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div className="relative top-10 mx-auto p-5 border w-full max-w-6xl shadow-lg rounded-md bg-white">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-lg font-medium text-gray-900">Products Pending Approval</h3>
+            <p className="text-sm text-gray-500 mt-1">
+              Review and approve or reject products submitted by sellers
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <X className="h-6 w-6" />
+          </button>
+        </div>
+
+        {products.length === 0 ? (
+          <div className="text-center py-12">
+            <Package className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No pending products</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              All products have been reviewed. New submissions will appear here.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Product
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Price
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Category
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Submitted
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {products.map((product) => (
+                  <tr key={product.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-12 w-12">
+                          {product.image_url ? (
+                            <img 
+                              className="h-12 w-12 rounded-lg object-cover" 
+                              src={product.image_url} 
+                              alt={product.name}
+                            />
+                          ) : (
+                            <div className="h-12 w-12 rounded-lg bg-gray-200 flex items-center justify-center">
+                              <Package className="h-6 w-6 text-gray-400" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900">{product.name}</div>
+                          <div className="text-sm text-gray-500">{product.weaver_name}</div>
+                          <div className="text-xs text-gray-400 mt-1 line-clamp-2">
+                            {product.description}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        ₱{product.price.toLocaleString()}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {product.category.replace('_', ' ')}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(product.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => handleApprove(product.id)}
+                          disabled={loading}
+                          className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => handleReject(product.id)}
+                          disabled={loading}
+                          className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <XCircle className="h-3 w-3 mr-1" />
+                          Reject
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200 mt-6">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 

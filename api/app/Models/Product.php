@@ -12,6 +12,7 @@ class Product extends Model
 
     protected $fillable = [
         'weaver_id',
+        'seller_id',
         'name',
         'slug',
         'description',
@@ -30,6 +31,12 @@ class Product extends Model
         'color',
         'weight_grams',
         'status',
+        'verification_status',
+        'rejected_reason',
+        'reviewed_by',
+        'reviewed_at',
+        'verified_by',
+        'verified_at',
         'is_featured',
         'is_handmade',
         'origin_region',
@@ -79,6 +86,22 @@ class Product extends Model
     }
 
     /**
+     * Get the seller (user) that created the product.
+     */
+    public function seller()
+    {
+        return $this->belongsTo(User::class, 'seller_id');
+    }
+
+    /**
+     * Get the admin who verified the product.
+     */
+    public function verifier()
+    {
+        return $this->belongsTo(User::class, 'verified_by');
+    }
+
+    /**
      * Get the orders for the product.
      */
     public function orders()
@@ -107,7 +130,37 @@ class Product extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where('status', 'active');
+        return $query->where(function($q) {
+            $q->where('status', 'active')
+              ->orWhere(function($subQ) {
+                  $subQ->where('status', 'approved')
+                       ->where('verification_status', 'approved');
+              });
+        });
+    }
+
+    /**
+     * Scope a query to only include pending products.
+     */
+    public function scopePending($query)
+    {
+        return $query->where('verification_status', 'pending');
+    }
+
+    /**
+     * Scope a query to only include approved products.
+     */
+    public function scopeApproved($query)
+    {
+        return $query->where('verification_status', 'approved');
+    }
+
+    /**
+     * Scope a query to only include rejected products.
+     */
+    public function scopeRejected($query)
+    {
+        return $query->where('verification_status', 'rejected');
     }
 
     /**
@@ -217,7 +270,7 @@ class Product extends Model
      */
     public function getFormattedPriceAttribute(): string
     {
-        return '₱' . number_format($this->price, 2);
+        return '₱' . number_format($this->price ?? 0, 2);
     }
 
     /**

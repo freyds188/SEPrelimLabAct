@@ -55,7 +55,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       setAdminUser(JSON.parse(storedAdminUser));
       
       // Verify token is still valid
-      const response = await fetch('/api/v1/admin/auth/me', {
+      const response = await fetch('http://127.0.0.1:8000/api/v1/admin/auth/me', {
         headers: {
           'Authorization': `Bearer ${adminToken}`,
           'Content-Type': 'application/json',
@@ -87,7 +87,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const fetchDashboardStats = async (token: string) => {
     try {
-      const response = await fetch('/api/v1/admin/dashboard/metrics', {
+      const response = await fetch('http://127.0.0.1:8000/api/v1/admin/dashboard/metrics', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',

@@ -105,7 +105,7 @@ export default function AdminDashboard() {
       const adminToken = localStorage.getItem('admin_token');
       console.log('Fetching dashboard stats with token:', !!adminToken);
       
-      const response = await fetch('/api/v1/admin/dashboard/metrics', {
+      const response = await fetch('http://127.0.0.1:8000/api/v1/admin/dashboard/metrics', {
         headers: {
           'Authorization': `Bearer ${adminToken}`,
           'Content-Type': 'application/json',

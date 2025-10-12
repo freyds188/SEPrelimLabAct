@@ -22,22 +22,24 @@ class StoreProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'weaver_id' => 'required|exists:weavers,id',
+            'weaver_id' => 'nullable|exists:weavers,id',
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:2000',
             'price' => 'required|numeric|min:0|max:999999.99',
             'stock_quantity' => 'required|integer|min:0|max:10000',
             'category' => 'required|string|max:100',
+            'material' => 'nullable|string|max:100',
+            'color' => 'nullable|string|max:50',
+            'tribe' => 'nullable|string|max:100',
+            'technique' => 'nullable|string|max:100',
+            'care_instructions' => 'nullable|string|max:1000',
+            'specifications' => 'nullable|string|max:1000',
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
             'images' => 'nullable|array',
             'images.*' => 'string|max:255',
             'main_image' => 'nullable|string|max:255',
-            'specifications' => 'nullable|array',
-            'specifications.material' => 'nullable|string|max:100',
-            'specifications.size' => 'nullable|string|max:50',
-            'specifications.color' => 'nullable|string|max:50',
-            'specifications.weight' => 'nullable|string|max:50',
+            'status' => 'nullable|in:pending,approved,rejected,active,inactive,draft',
         ];
     }
 
@@ -47,7 +49,6 @@ class StoreProductRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'weaver_id.required' => 'Weaver ID is required.',
             'weaver_id.exists' => 'The selected weaver does not exist.',
             'name.required' => 'Product name is required.',
             'description.required' => 'Product description is required.',
@@ -60,6 +61,7 @@ class StoreProductRequest extends FormRequest
             'stock_quantity.min' => 'Stock quantity cannot be negative.',
             'stock_quantity.max' => 'Stock quantity cannot exceed 10,000.',
             'category.required' => 'Product category is required.',
+            'status.in' => 'Invalid status value.',
         ];
     }
 }

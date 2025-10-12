@@ -15,8 +15,10 @@ export function SiteChrome({ children }: SiteChromeProps) {
 	const first = segments[0]
 	const second = segments[1]
 	const isAdminRoute = first === 'admin' || second === 'admin'
+	const isSellerRoute = first === 'seller' || second === 'seller'
 
-	if (isAdminRoute) {
+
+	if (isAdminRoute || isSellerRoute) {
 		return (
 			<main id="main-content" className="flex-1" role="main" tabIndex={-1}>
 				{children}

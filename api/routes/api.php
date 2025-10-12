@@ -56,6 +56,7 @@ Route::get('/test', function () {
     ]);
 });
 
+
 // Public API endpoints (v1)
 Route::prefix('v1')->group(function () {
     // Public routes (no authentication required)
@@ -202,6 +203,14 @@ Route::prefix('v1')->group(function () {
         Route::post('/products', [ProductController::class, 'store']);
         Route::put('/products/{product}', [ProductController::class, 'update']);
         Route::delete('/products/{product}', [ProductController::class, 'destroy']);
+        
+        // Seller product management
+        Route::get('/products/my-products', [ProductController::class, 'myProducts']);
+        
+        // Admin product approval
+        Route::get('/products/pending', [ProductController::class, 'pending']);
+        Route::post('/products/{product}/approve', [ProductController::class, 'approve']);
+        Route::post('/products/{product}/reject', [ProductController::class, 'reject']);
 
         // Story management (authenticated users)
         Route::post('/stories', [StoryController::class, 'store']);
@@ -254,7 +263,8 @@ Route::prefix('v1')->group(function () {
             Route::put('/products/{product:id}', [AdminProductController::class, 'updateProduct']);
             Route::delete('/products/{product:id}', [AdminProductController::class, 'deleteProduct']);
             Route::post('/products/bulk-upload', [AdminProductController::class, 'bulkUpload']);
-            Route::post('/products/{product}/approve', [AdminProductController::class, 'approveProduct']);
+            Route::post('/products/{product:id}/approve', [AdminProductController::class, 'approveProduct']);
+            Route::post('/products/{product:id}/reject', [AdminProductController::class, 'rejectProduct']);
             Route::get('/products/stats', [AdminProductController::class, 'getProductStats']);
             
             // Content moderation
